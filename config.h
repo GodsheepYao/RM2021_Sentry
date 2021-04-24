@@ -1,6 +1,8 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+#define TEST 0
+
 #ifdef __HIGH
 	#define PTZ_Yaw_median 3455
 	#define PTZ_Yaw_MAX (PTZ_Yaw_median + 8191/360*60)

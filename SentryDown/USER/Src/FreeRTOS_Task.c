@@ -1,34 +1,56 @@
 #include "FreeRTOS_Task.h"
-
 #include "PTZ_Init_Task.h"
+#include "PTZ_Runtime_Task.h"
+#include "Fire_Mechanism_Task.h"
+#include "PC_Task.h"
+#include "Remote_Task.h"
 
-GM6020_TypeDef GM6020_Pitch, GM6020_Yaw;
 
+//Pitch轴、Yaw轴电机数据
+GM6020_TypeDef GM6020_Pitch,GM6020_Yaw;
+
+//拨弹电机数据
 M2006_TypeDef Pluck1;
 
+//摩擦轮电机数据
 RM3510_TypeDef Frictionwheel1,Frictionwheel2;
 
-PID_Smis GM6020_Pitch_PID = {.Kp = 10,.Ki = 0,.Kd = 0,.limit = 5000};
-PID GM6020_Pitch_SPID = {.Kp = 10,.Ki = 0,.Kd = 0};
+//Pitch轴角度、速度PID
+PID_Smis GM6020_Pitch_PID = {.Kp = 15,.Ki = 0.1,.Kd = -25,.limit = 5000};
+PID GM6020_Pitch_SPID = {.Kp = 10,.Ki = 0,.Kd = 3};
 
-PID_Smis GM6020_Yaw_PID = {.Kp = 10,.Ki = 0,.Kd = 0,.limit = 5000};
+//Yaw轴角度、速度PID
+PID_Smis GM6020_Yaw_PID = {.Kp = 20,.Ki = 0.1,.Kd = -45,.limit = 5000};
 PID GM6020_Yaw_SPID = {.Kp = 10,.Ki = 0,.Kd = 0};
 
-PID Pluck1_SPID = {.Kp = 0,.Ki = 0,.Kd = 0,.limit = 5000};
+//拨弹电机速度PID
+int16_t PluckSpeedExp = -2000;
+PID Pluck1_SPID = {.Kp = 5,.Ki = 0,.Kd = 0,.limit = 5000};
 
-PID Frictionwheel1_SPID = {.Kp = 0,.Ki = 0,.Kd = 0,.limit = 1000};
-PID Frictionwheel2_SPID = {.Kp = 0,.Ki = 0,.Kd = 0,.limit = 1000};
+//摩擦轮电机速度PID
+int16_t FrictionwheelSpeedExp = 5000;
+PID Frictionwheel1_SPID = {.Kp = 5,.Ki = 0,.Kd = 0,.limit = 1000};
+PID Frictionwheel2_SPID = {.Kp = 5,.Ki = 0,.Kd = 0,.limit = 1000};
 
 Robot_Status_t Robot_Status;
-float Yaw_offset;
 PTZAngle_Ref_t PTZAngle_Ref = {.Pitch = PTZ_Pitch_median,.Yaw = 0};
 
+//上下板通信数据
+UpBoard_Data_t Up_Data;
 
 /*初始任务*/
-void StartTask(void) {   
+void StartTask(void) {
+
+    /*创建二值信号量*/
+    Remote_Semaphore = xSemaphoreCreateBinary();
+    
 	CanFilter_Init(&hcan1);
 	HAL_CAN_Start(&hcan1);
 	HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
+    
+    HAL_NVIC_DisableIRQ(DMA2_Stream2_IRQn);
+    __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+    HAL_UART_Receive_DMA(&huart1, usart1_dma_buff, 30);
 
 	HAL_TIM_Base_Start(&htim2);
 	
@@ -38,6 +60,13 @@ void StartTask(void) {
                 (void *)NULL,
                 (UBaseType_t)1,
                 (TaskHandle_t *)&PTZ_Init_Handler);
+                
+    xTaskCreate((TaskFunction_t)PC_task,
+                (const char *)"PC_task",
+                (uint16_t)256,
+                (void *)NULL,
+                (UBaseType_t)3,
+                (TaskHandle_t *)&PC_task_Handler);
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {

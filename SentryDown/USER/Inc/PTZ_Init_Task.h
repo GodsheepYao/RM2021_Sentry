@@ -1,8 +1,7 @@
 #ifndef _PTZ_Init_task_
 #define _PTZ_Init_task_
 
-#include "FreeRTOS.h"
-#include <cmsis_os.h>
+#include "RMLibHead.h"
 
 #include "ramp.h"
 
