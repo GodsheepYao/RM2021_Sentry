@@ -6,34 +6,39 @@
 #include "CANDrive.h"
 #include "motor.h"
 #include "config.h"
+#include "Chassis.h"
 
-#include "PTZ_Init_Task.h"
+typedef struct {
+    uint32_t RS_Normal    :1; //!<@brief 没用。。。
+    uint32_t RS_Ready     :1; //!<@brief 初始化完成
+    uint32_t RS_Dead      :1; //!<@brief 战场死亡标志位
+    uint32_t RS_Kill      :1; //!<@brief 杀死标志位
+    uint32_t RS_Fire      :1; //!<@brief 开火
+    uint32_t RS_Loaded    :1; //!<@brief 上膛(摩擦轮启动)
+    uint32_t RS_Downctl   :1; //!<@brief 下云台操控模式
+    uint32_t RS_Auto      :1; //!<@brief 自瞄模式
+} Robot_Status_t;
 
-extern uint8_t Sentry_test;
+extern GM6020_TypeDef GM6020_Pitch,GM6020_Yaw;          //!<@brief Pitch轴、Yaw轴电机数据
 
-//Pitch轴、Yaw轴电机数据
-extern GM6020_TypeDef GM6020_Pitch,GM6020_Yaw;
+extern M2006_TypeDef Pluck1;                            //!<@brief 拨弹电机数据
 
-//拨弹电机数据
-extern M2006_TypeDef Pluck1;
+extern RM3510_TypeDef Frictionwheel1,Frictionwheel2;    //!<@brief 摩擦轮电机数据
 
-//摩擦轮电机数据
-extern RM3510_TypeDef Frictionwheel1,Frictionwheel2;
+extern PID_Smis GM6020_Pitch_PID;   //!<@brief Pitch轴角度PID
+extern PID GM6020_Pitch_SPID;       //!<@brief Pitch轴速度PID
 
-//Pitch轴角度、速度PID
-extern PID_Smis GM6020_Pitch_PID;
-extern PID GM6020_Pitch_SPID;
+extern PID_Smis GM6020_Yaw_PID;     //!<@brief Yaw轴角度PID
+extern PID GM6020_Yaw_SPID;         //!<@brief Yaw轴速度PID
 
-//Yaw轴角度、速度PID
-extern PID_Smis GM6020_Yaw_PID;
-extern PID GM6020_Yaw_SPID;
+extern PID Pluck1_SPID;             //!<@brief 拨弹电机速度PID
 
-//拨弹电机速度PID
-extern PID Pluck1_SPID;
+extern PID Frictionwheel1_SPID;     //!<@brief 摩擦轮1速度PID
+extern PID Frictionwheel2_SPID;     //!<@brief 摩擦轮2速度PID
 
-//摩擦轮速度PID
-extern PID Frictionwheel1_SPID;
-extern PID Frictionwheel2_SPID;
+extern Robot_Status_t Robot_Status; //!<@brief 机器人全局标志位
+extern PTZAngle_Ref_t PTZAngle_Ref; //!<@brief 云台角度期望
+extern float Yaw_offset;            //!<@brief 云台Yaw角度偏移量
 
 void StartTask(void);
 
