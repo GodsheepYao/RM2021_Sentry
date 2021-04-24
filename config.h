@@ -17,11 +17,12 @@
 #endif
 
 #ifdef __LOW
-#define PTZ_Yaw_median 1662
 
-    #define PTZ_Pitch_median 0
-    #define PTZ_Pitch_MAX 1200
-    #define PTZ_Pitch_MIN -500
+    #define PTZ_Yaw_median 7726
+
+    #define PTZ_Pitch_median 6706
+    #define PTZ_Pitch_MAX 7100
+    #define PTZ_Pitch_MIN 5212
 
     #define Sensitivity_Yaw 0.02f
     #define Sensitivity_Pitch 0.02f

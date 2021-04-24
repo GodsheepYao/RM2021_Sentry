@@ -1,5 +1,8 @@
 #include "FreeRTOS_Task.h"
 
+//测试标志位
+uint8_t Sentry_test = 0;
+
 //Pitch轴、Yaw轴电机数据
 GM6020_TypeDef GM6020_Pitch,GM6020_Yaw;
 
@@ -10,12 +13,12 @@ M2006_TypeDef Pluck1;
 RM3510_TypeDef Frictionwheel1,Frictionwheel2;
 
 //Pitch轴角度、速度PID
-PID_Smis GM6020_Pitch_PID = {.Kp = 0,.Ki = 0,.Kd = 0,.limit = 5000};
-PID GM6020_Pitch_SPID = {.Kp = 0,.Ki = 0,.Kd = 0};
+PID_Smis GM6020_Pitch_PID = {.Kp = 10,.Ki = 0,.Kd = 0,.limit = 5000};
+PID GM6020_Pitch_SPID = {.Kp = 10,.Ki = 0,.Kd = 0};
 
 //Yaw轴角度、速度PID
-PID_Smis GM6020_Yaw_PID = {.Kp = 0,.Ki = 0,.Kd = 0,.limit = 5000};
-PID GM6020_Yaw_SPID = {.Kp = 0,.Ki = 0,.Kd = 0};
+PID_Smis GM6020_Yaw_PID = {.Kp = 10,.Ki = 0,.Kd = 0,.limit = 5000};
+PID GM6020_Yaw_SPID = {.Kp = 10,.Ki = 0,.Kd = 0};
 
 //拨弹电机速度PID
 PID Pluck1_SPID = {.Kp = 0,.Ki = 0,.Kd = 0,.limit = 5000};

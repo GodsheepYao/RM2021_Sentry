@@ -9,6 +9,8 @@
 
 #include "PTZ_Init_Task.h"
 
+extern uint8_t Sentry_test;
+
 //Pitch轴、Yaw轴电机数据
 extern GM6020_TypeDef GM6020_Pitch,GM6020_Yaw;
 

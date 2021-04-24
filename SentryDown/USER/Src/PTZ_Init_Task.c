@@ -24,5 +24,16 @@ void PTZ_Init_task(void *pvParameters) {
 		PID_Control_Smis(QuickCentering(GM6020_Yaw.MchanicalAngle, PTZ_Yaw_median), 
 						PTZ_Yaw_median - (YawRampInit * (1.0f - Slope(&PTZ_Init))), 
 						&GM6020_Yaw_PID, GM6020_Yaw.Speed);
+        
+        PID_Control(GM6020_Pitch.Speed, GM6020_Pitch_PID.pid_out, &GM6020_Pitch_SPID);
+        limit(GM6020_Pitch_SPID.pid_out, 29000, -29000);
+        PID_Control(GM6020_Yaw.Speed, GM6020_Yaw_PID.pid_out, &GM6020_Yaw_SPID);
+        limit(GM6020_Yaw_SPID.pid_out, 29000, -29000);
+        
+        Send_buff[0] = GM6020_Pitch_SPID.pid_out;
+        Send_buff[1] = GM6020_Yaw_SPID.pid_out;
+        
+        if(Sentry_test == 0) MotorSend(&hcan1, 0x1ff, Send_buff);
+        
 	}
 }
