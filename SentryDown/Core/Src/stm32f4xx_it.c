@@ -26,6 +26,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Remote_Task.h"
+#include "WatchDog.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

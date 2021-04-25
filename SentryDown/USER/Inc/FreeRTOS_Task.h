@@ -8,6 +8,7 @@
 #include "motor.h"
 #include "config.h"
 #include "Chassis.h"
+#include "WatchDog.h"
 
 
 #define STATUS_TURN_ON 1      //!<@brief 状态开启
@@ -52,6 +53,9 @@ extern int16_t PluckSpeedExp;       //!<@brief 拨弹速度期望
 extern int16_t FrictionwheelSpeedExp;//!<@brief 拨弹速度期望
 
 extern UpBoard_Data_t Up_Data;  //!<@brief 上下板通信数据
+
+
+extern WatchDog_TypeDef Yaw_Dog, Pitch_Dog, Friction1_Dog, Friction2_Dog, Pluck_Dog; //!<@brief 所有下云台电机看门狗
 
 void StartTask(void);
 

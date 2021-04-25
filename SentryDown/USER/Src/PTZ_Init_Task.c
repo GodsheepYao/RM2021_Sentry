@@ -64,7 +64,7 @@ void PTZ_Init_task(void *pvParameters) {
                 (void *)NULL,
                 (UBaseType_t)2,
                 (TaskHandle_t *)&Fire_Mechanism_task_Handler);
-                Robot_Status.RS_Ready = STATUS_TURN_ON;
+            Robot_Status.RS_Ready = STATUS_TURN_ON;
             vTaskDelete(NULL);
         }
         vTaskDelayUntil(&xLastWakeTime, 2);

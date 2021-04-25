@@ -4,6 +4,7 @@
 #include "Fire_Mechanism_Task.h"
 #include "PC_Task.h"
 #include "Remote_Task.h"
+#include "Power_Protection_Task.h"
 
 
 //Pitch轴、Yaw轴电机数据
@@ -38,11 +39,21 @@ PTZAngle_Ref_t PTZAngle_Ref = {.Pitch = PTZ_Pitch_median,.Yaw = 0};
 //上下板通信数据
 UpBoard_Data_t Up_Data;
 
+//所有电机看门狗
+WatchDog_TypeDef Yaw_Dog, Pitch_Dog, Friction1_Dog, Friction2_Dog, Pluck_Dog;
+
 /*初始任务*/
 void StartTask(void) {
-
+    Robot_Status.RS_Dead = 1;
     /*创建二值信号量*/
     Remote_Semaphore = xSemaphoreCreateBinary();
+    Power_Semaphore = xSemaphoreCreateBinary();
+    
+    WatchDog_Init(&Yaw_Dog, 10);
+    WatchDog_Init(&Pitch_Dog, 10);
+    WatchDog_Init(&Friction1_Dog, 10);
+    WatchDog_Init(&Friction2_Dog, 10);
+    WatchDog_Init(&Pluck_Dog, 10);
     
 	CanFilter_Init(&hcan1);
 	HAL_CAN_Start(&hcan1);
@@ -53,13 +64,6 @@ void StartTask(void) {
     HAL_UART_Receive_DMA(&huart1, usart1_dma_buff, 30);
 
 	HAL_TIM_Base_Start(&htim2);
-	
-	xTaskCreate((TaskFunction_t)PTZ_Init_task,
-                (const char *)"PTZ_Init_task",
-                (uint16_t)256,
-                (void *)NULL,
-                (UBaseType_t)1,
-                (TaskHandle_t *)&PTZ_Init_Handler);
                 
     xTaskCreate((TaskFunction_t)PC_task,
                 (const char *)"PC_task",
@@ -67,6 +71,13 @@ void StartTask(void) {
                 (void *)NULL,
                 (UBaseType_t)3,
                 (TaskHandle_t *)&PC_task_Handler);
+                
+    xTaskCreate((TaskFunction_t)Power_Protection_task,
+                (const char *)"Power_Protection_task",
+                (uint16_t)256,
+                (void *)NULL,
+                (UBaseType_t)1,
+                (TaskHandle_t *)&Power_Protection_Handler);
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
@@ -75,18 +86,23 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     switch (can_id) {
         case 0x203:
             RM3510_Receive(&Frictionwheel1, CAN1_buff);
+            Feed_Dog(&Friction1_Dog);
             break;
         case 0x204:
             RM3510_Receive(&Frictionwheel2, CAN1_buff);
+            Feed_Dog(&Friction2_Dog);
             break;
         case 0x205:
             GM6020_Receive(&GM6020_Pitch, CAN1_buff);
+            Feed_Dog(&Pitch_Dog);
             break;
         case 0x206:
             GM6020_Receive(&GM6020_Yaw, CAN1_buff);
+            Feed_Dog(&Yaw_Dog);
             break;
         case 0x207:
             M2006_Receive(&Pluck1, CAN1_buff);
+            Feed_Dog(&Pluck_Dog);
             break;
     }
   }
