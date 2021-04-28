@@ -16,6 +16,12 @@ M2006_TypeDef Pluck1;
 //摩擦轮电机数据
 RM3510_TypeDef Frictionwheel1,Frictionwheel2;
 
+//拨弹速度期望
+int16_t PluckSpeedExp = -2000;
+
+//摩擦轮速度期望
+int16_t FrictionwheelSpeedExp = 5000;
+
 //Pitch轴角度、速度PID
 PID_Smis GM6020_Pitch_PID = {.Kp = 15,.Ki = 0.1,.Kd = -25,.limit = 5000};
 PID GM6020_Pitch_SPID = {.Kp = 10,.Ki = 0,.Kd = 3};
@@ -25,15 +31,16 @@ PID_Smis GM6020_Yaw_PID = {.Kp = 20,.Ki = 0.1,.Kd = -45,.limit = 5000};
 PID GM6020_Yaw_SPID = {.Kp = 10,.Ki = 0,.Kd = 0};
 
 //拨弹电机速度PID
-int16_t PluckSpeedExp = -2000;
 PID Pluck1_SPID = {.Kp = 5,.Ki = 0,.Kd = 0,.limit = 5000};
 
 //摩擦轮电机速度PID
-int16_t FrictionwheelSpeedExp = 5000;
 PID Frictionwheel1_SPID = {.Kp = 5,.Ki = 0,.Kd = 0,.limit = 1000};
 PID Frictionwheel2_SPID = {.Kp = 5,.Ki = 0,.Kd = 0,.limit = 1000};
 
+//机器人状态标志位
 Robot_Status_t Robot_Status;
+
+//云台期望
 PTZAngle_Ref_t PTZAngle_Ref = {.Pitch = PTZ_Pitch_median,.Yaw = 0};
 
 //上下板通信数据
@@ -45,9 +52,10 @@ WatchDog_TypeDef Yaw_Dog, Pitch_Dog, Friction1_Dog, Friction2_Dog, Pluck_Dog;
 /*初始任务*/
 void StartTask(void) {
     Robot_Status.RS_Dead = 1;
+#if Down_Remote == 1
     /*创建二值信号量*/
     Remote_Semaphore = xSemaphoreCreateBinary();
-    Power_Semaphore = xSemaphoreCreateBinary();
+#endif
     
     WatchDog_Init(&Yaw_Dog, 10);
     WatchDog_Init(&Pitch_Dog, 10);

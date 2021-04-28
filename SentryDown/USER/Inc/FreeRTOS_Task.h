@@ -36,23 +36,23 @@ extern M2006_TypeDef Pluck1;                            //!<@brief 拨弹电机�
 
 extern RM3510_TypeDef Frictionwheel1,Frictionwheel2;    //!<@brief 摩擦轮电机数据
 
-extern PID_Smis GM6020_Pitch_PID;   //!<@brief Pitch轴角度PID
-extern PID GM6020_Pitch_SPID;       //!<@brief Pitch轴速度PID
+extern PID_Smis GM6020_Pitch_PID;           //!<@brief Pitch轴角度PID
+extern PID GM6020_Pitch_SPID;               //!<@brief Pitch轴速度PID
+    
+extern PID_Smis GM6020_Yaw_PID;             //!<@brief Yaw轴角度PID
+extern PID GM6020_Yaw_SPID;                 //!<@brief Yaw轴速度PID
+    
+extern PID Pluck1_SPID;                     //!<@brief 拨弹电机速度PID
+    
+extern PID Frictionwheel1_SPID;             //!<@brief 摩擦轮1速度PID
+extern PID Frictionwheel2_SPID;             //!<@brief 摩擦轮2速度PID
 
-extern PID_Smis GM6020_Yaw_PID;     //!<@brief Yaw轴角度PID
-extern PID GM6020_Yaw_SPID;         //!<@brief Yaw轴速度PID
-
-extern PID Pluck1_SPID;             //!<@brief 拨弹电机速度PID
-
-extern PID Frictionwheel1_SPID;     //!<@brief 摩擦轮1速度PID
-extern PID Frictionwheel2_SPID;     //!<@brief 摩擦轮2速度PID
+extern PTZAngle_Ref_t PTZAngle_Ref;     //!<@brief 云台角度期望
+extern int16_t PluckSpeedExp;           //!<@brief 拨弹速度期望
+extern int16_t FrictionwheelSpeedExp;   //!<@brief 拨弹速度期望
 
 extern Robot_Status_t Robot_Status; //!<@brief 机器人全局标志位
-extern PTZAngle_Ref_t PTZAngle_Ref; //!<@brief 云台角度期望
-extern int16_t PluckSpeedExp;       //!<@brief 拨弹速度期望
-extern int16_t FrictionwheelSpeedExp;//!<@brief 拨弹速度期望
-
-extern UpBoard_Data_t Up_Data;  //!<@brief 上下板通信数据
+extern UpBoard_Data_t Up_Data;      //!<@brief 上下板通信数据
 
 
 extern WatchDog_TypeDef Yaw_Dog, Pitch_Dog, Friction1_Dog, Friction2_Dog, Pluck_Dog; //!<@brief 所有下云台电机看门狗

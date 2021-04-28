@@ -52,18 +52,20 @@ void PTZ_Init_task(void *pvParameters) {
                 (UBaseType_t)2,
                 (TaskHandle_t *)&PTZ_Runtime_Handler);
                 
-            xTaskCreate((TaskFunction_t)Remote_task,
-                (const char *)"Remote_task",
-                (uint16_t)256,
-                (void *)NULL,
-                (UBaseType_t)2,
-                (TaskHandle_t *)&Remote_task_Handler);
             xTaskCreate((TaskFunction_t)Fire_Mechanism_Task,
                 (const char *)"Fire_Mechanism_Task",
                 (uint16_t)256,
                 (void *)NULL,
                 (UBaseType_t)2,
                 (TaskHandle_t *)&Fire_Mechanism_task_Handler);
+#if Down_Remote == 1
+            xTaskCreate((TaskFunction_t)Remote_task,
+                (const char *)"Remote_task",
+                (uint16_t)256,
+                (void *)NULL,
+                (UBaseType_t)2,
+                (TaskHandle_t *)&Remote_task_Handler);
+#endif
             Robot_Status.RS_Ready = STATUS_TURN_ON;
             vTaskDelete(NULL);
         }

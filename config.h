@@ -2,15 +2,16 @@
 #define _CONFIG_H_
 
 #define TEST 0
+#define Down_Remote 0
 
 #ifdef __HIGH
 	#define PTZ_Yaw_median 3455
 	#define PTZ_Yaw_MAX (PTZ_Yaw_median + 8191/360*60)
 	#define PTZ_Yaw_MIN (PTZ_Yaw_median - 8191/360*60)
 
-	#define PTZ_Pitch_median 6151
-	#define PTZ_Pitch_MAX 6681
-	#define PTZ_Pitch_MIN 5473
+	#define PTZ_Pitch_median 1970
+	#define PTZ_Pitch_MAX 2513
+	#define PTZ_Pitch_MIN 1024
 
 	#define Sensitivity_Chassis 8
 	#define Sensitivity_Yaw 0.07f
