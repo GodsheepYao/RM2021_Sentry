@@ -5,12 +5,15 @@ TaskHandle_t PC_task_Handler;
 void PC_task(void *pvParameters){
     USB_PACK_t USB_PACK;
     UpBoard_Data_t UpBoard_Data;
-//    float last_Encoder_Locat = 15.7f * (float)(Encoder_Rand * 1600.0f + TIM1->CNT) / 1600.0f;
+    float last_Encoder_Locat = 18.84f * (float)(Encoder_Rand * 1600.0f + TIM1->CNT) / 1600.0f;
 
     portTickType xLastWakeTime = xTaskGetTickCount();
     for( ;; ) {
-//        UpBoard_Data.Encoder_Locat = Encoder_Locat * 10.0f;
-//        UpBoard_Data.Speed = Encoder_Speed * 100.0f;
+        Encoder_Locat = 18.84f * (float)(Encoder_Rand * 1600.0f + TIM1->CNT) / 1600.0f;
+        Encoder_Speed = Encoder_Locat - last_Encoder_Locat;
+        
+        UpBoard_Data.Encoder_Locat = Encoder_Locat * 10.0f;
+        UpBoard_Data.Speed = Encoder_Speed * 100.0f;
         UpBoard_Data.Status = Robot_Status;
         
         if(hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED){
@@ -18,8 +21,8 @@ void PC_task(void *pvParameters){
             USB_PACK.Yaw_AngularVelocity   = GM6020_Yaw.Speed;                     	
             USB_PACK.Pitch_MchanicalAngle  = GM6020_Pitch.MchanicalAngle;     	
             USB_PACK.Pitch_AngularVelocity = GM6020_Pitch.Speed;                   	
-//            USB_PACK.Location              = UpBoard_Data.Encoder_Locat;                             //车体位置(mm)
-//            USB_PACK.Speed                 = UpBoard_Data.Speed;										   
+            USB_PACK.Location              = UpBoard_Data.Encoder_Locat;                             //车体位置(mm)
+            USB_PACK.Speed                 = UpBoard_Data.Speed;										   
             USB_PACK.Status = UpBoard_Data.Status;
             
 //            portENTER_CRITICAL();    
@@ -28,7 +31,7 @@ void PC_task(void *pvParameters){
         }
         
         CAN_Send_StdDataFrame(&hcan2, 0x100, (uint8_t*)&UpBoard_Data);
-//        last_Encoder_Locat = Encoder_Locat;
+        last_Encoder_Locat = Encoder_Locat;
         vTaskDelayUntil(&xLastWakeTime, 10);
     }
 }

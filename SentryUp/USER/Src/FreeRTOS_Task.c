@@ -3,6 +3,7 @@
 #include "Chassis_Init_Task.h"
 #include "PTZ_Init_Task.h"
 #include "PC_Task.h"
+#include "Power_Protection_Task.h"
 
 //Pitch轴、Yaw轴电机数据
 GM6020_TypeDef GM6020_Pitch, GM6020_Yaw;
@@ -28,9 +29,12 @@ int16_t PluckSpeedExp = -2000;
 //摩擦轮速度期望
 int16_t FrictionwheelSpeedExp = 5000;
 
+//底盘电机速度PID
+PID ChassisMotor_SPID = {.Kp = 10, .Ki = 0.5, .Kd = 1, .limit = 5000}; 
+
 //Pitch轴角度、速度PID
-PID_Smis GM6020_Pitch_PID = {.Kp = 15, .Ki = 0.1, .Kd = -25, .limit = 5000};
-PID GM6020_Pitch_SPID = {.Kp = 10, .Ki = 0, .Kd = 3};
+PID_Smis GM6020_Pitch_PID = {.Kp = 5, .Ki = 0.1, .Kd = -25, .limit = 5000};
+PID GM6020_Pitch_SPID = {.Kp = 5, .Ki = 0, .Kd = 3};
 
 //Yaw轴角度、速度PID
 PID_Smis GM6020_Yaw_PID = {.Kp = 5,.Ki = 0,.Kd = 0,.limit = 5000};
@@ -44,11 +48,25 @@ PID Pluck2_SPID = {.Kp = 13, .Ki = 0.5, .Kd = 1, .limit = 5000};
 PID Frictionwheel1_SPID = {.Kp = 0,.Ki = 0,.Kd = 0,.limit = 1000};
 PID Frictionwheel2_SPID = {.Kp = 0,.Ki = 0,.Kd = 0,.limit = 1000};
 
+//编码器数据
+int16_t Encoder_Rand;
+float Encoder_Speed;
+float Encoder_Locat;
+float Encoder_offsef;
+float Encoder_Max;
+
 //机器人状态标志位
 Robot_Status_t Robot_Status;
 
+//所有电机看门狗
+WatchDog_TypeDef Chassis_Dog, Yaw_Dog, Pitch_Dog, Friction1_Dog, Friction2_Dog, Pluck1_Dog, Pluck2_Dog;
+
+//遥控器看门狗
+WatchDog_TypeDef Remote_Dog;
+
 /*初始任务*/
 void StartTask(void) {
+    Robot_Status.RS_Dead = 1;
 #if Down_Remote == 0
     /*创建二值信号量*/
     Remote_Semaphore = xSemaphoreCreateBinary();
@@ -66,19 +84,24 @@ void StartTask(void) {
     HAL_UART_Receive_DMA(&huart1, usart1_dma_buff, 30);
     
     HAL_TIM_Base_Init(&htim2);
+    HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
+    __HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
     
-    xTaskCreate((TaskFunction_t)Chassis_Init_task,
-                (const char *)"Chassis_Init_task",
+    WatchDog_Init(&Chassis_Dog, 10);
+    WatchDog_Init(&Yaw_Dog, 10);
+    WatchDog_Init(&Pitch_Dog, 10);
+    WatchDog_Init(&Friction1_Dog, 10);
+    WatchDog_Init(&Friction2_Dog, 10);
+    WatchDog_Init(&Pluck1_Dog, 10);
+    WatchDog_Init(&Pluck2_Dog, 10);
+    WatchDog_Init(&Remote_Dog, 10);
+    
+    xTaskCreate((TaskFunction_t)Power_Protection_task,
+                (const char *)"Power_Protection_task",
                 (uint16_t)256,
                 (void *)NULL,
-                (UBaseType_t)2,
-                (TaskHandle_t *)&Chassis_Init_Handler);
-    xTaskCreate((TaskFunction_t)PTZ_Init_task,
-                (const char *)"PTZ_Init_task",
-                (uint16_t)256,
-                (void *)NULL,
-                (UBaseType_t)2,
-                (TaskHandle_t *)&PTZ_Init_Handler);
+                (UBaseType_t)1,
+                (TaskHandle_t *)&Power_Protection_Handler);
     xTaskCreate((TaskFunction_t)PC_task,
                 (const char *)"PC_task",
                 (uint16_t)256,
@@ -91,17 +114,20 @@ void StartTask(void) {
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
   if (hcan->Instance == CAN1) {
     uint32_t can_id = CAN_Receive_DataFrame(&hcan1, CAN1_buff);
-      switch(can_id) {
-          case 0x201:
-              RM3508_Receive(&ChassisMotor, CAN1_buff);
-              break;
-          case 0x205:
+        switch(can_id) {
+            case 0x201:
+                RM3508_Receive(&ChassisMotor, CAN1_buff);
+                Feed_Dog(&Chassis_Dog);
+                break;
+            case 0x205:
                 GM6020_Receive(&GM6020_Yaw, CAN1_buff);
+                Feed_Dog(&Yaw_Dog);
                 break;
-          case 0x206:
+            case 0x206:
                 GM6020_Receive(&GM6020_Pitch, CAN1_buff);
+                Feed_Dog(&Pitch_Dog);
                 break;
-      }
+        }
   }
   
 }

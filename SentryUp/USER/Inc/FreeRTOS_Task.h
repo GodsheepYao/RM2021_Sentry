@@ -37,6 +37,8 @@ extern int16_t ChassisSpeedExp;             //!<@brief 底盘电机期望
 
 extern PTZAngle_Ref_t PTZAngle_Ref;         //!<@brief 云台角度期望
 
+extern PID ChassisMotor_SPID;       //!<@brief 底盘速度PID
+
 extern PID_Smis GM6020_Pitch_PID;   //!<@brief Pitch轴角度PID
 extern PID GM6020_Pitch_SPID;       //!<@brief Pitch轴速度PID
 
@@ -48,7 +50,18 @@ extern PID Pluck1_SPID;             //!<@brief 拨弹电机速度PID
 extern PID Frictionwheel1_SPID;     //!<@brief 摩擦轮1速度PID
 extern PID Frictionwheel2_SPID;     //!<@brief 摩擦轮2速度PID
 
+//编码器数据
+extern int16_t Encoder_Rand;
+extern float Encoder_Speed;
+extern float Encoder_Locat;
+extern float Encoder_offsef;
+extern float Encoder_Max;
+
 extern Robot_Status_t Robot_Status; //!<@brief 机器人全局标志位
 
+extern WatchDog_TypeDef Chassis_Dog, Yaw_Dog, Pitch_Dog, 
+       Friction1_Dog, Friction2_Dog, Pluck1_Dog, Pluck2_Dog; //!<@brief 所有下云台电机看门狗
+
+extern WatchDog_TypeDef Remote_Dog; //!<@brief 遥控器看门狗
 
 #endif

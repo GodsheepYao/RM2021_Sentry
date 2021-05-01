@@ -40,10 +40,10 @@ void PTZ_Init_task(void *pvParameters) {
 #else
         UNUSED(Send_buff);
 #endif
-//        if (Slope(&PTZ_Init) == 1.0f && Robot_Status.RS_Ready == STATUS_TURN_ON)
-//        {
-//			vTaskDelete(NULL);
-//        }
+        if (Slope(&PTZ_Init) == 1.0f && Robot_Status.RS_Ready == STATUS_TURN_ON)
+        {
+			vTaskDelete(NULL);
+        }
         vTaskDelayUntil(&xLastWakeTime, 2);
     }
 }

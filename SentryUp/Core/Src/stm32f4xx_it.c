@@ -26,6 +26,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Remote_Task.h"
+#include "FreeRTOS_Task.h"
+#include "WatchDog.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -62,6 +64,7 @@
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 extern CAN_HandleTypeDef hcan1;
 extern CAN_HandleTypeDef hcan2;
+extern TIM_HandleTypeDef htim1;
 extern DMA_HandleTypeDef hdma_usart1_rx;
 extern UART_HandleTypeDef huart1;
 /* USER CODE BEGIN EV */
@@ -203,6 +206,28 @@ void CAN1_RX0_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles TIM1 update interrupt and TIM10 global interrupt.
+  */
+void TIM1_UP_TIM10_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 0 */
+    if(__HAL_TIM_GET_FLAG(&htim1,TIM_FLAG_UPDATE) && __HAL_TIM_GET_IT_SOURCE(&htim1,TIM_IT_UPDATE) == SET) {
+        __HAL_TIM_CLEAR_IT(&htim1,TIM_IT_UPDATE);
+        __HAL_TIM_CLEAR_FLAG(&htim1,TIM_FLAG_UPDATE);
+        if((TIM1->CR1 & 0x10) == 0x10) 
+            --Encoder_Rand;
+        else
+            ++Encoder_Rand;
+    }
+#if 0
+  /* USER CODE END TIM1_UP_TIM10_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim1);
+  /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 1 */
+#endif
+  /* USER CODE END TIM1_UP_TIM10_IRQn 1 */
+}
+
+/**
   * @brief This function handles USART1 global interrupt.
   */
 void USART1_IRQHandler(void)
@@ -214,6 +239,7 @@ void USART1_IRQHandler(void)
         __HAL_UART_CLEAR_FLAG(&huart1,UART_FLAG_IDLE);
 		HAL_UART_DMAStop(&huart1);
 		HAL_UART_Receive_DMA(&huart1, usart1_dma_buff, sizeof(usart1_dma_buff));
+        Feed_Dog(&Remote_Dog);
 		xSemaphoreGiveFromISR(Remote_Semaphore, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 	}

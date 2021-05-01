@@ -58,6 +58,14 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define Fiber2_Pin GPIO_PIN_13
+#define Fiber2_GPIO_Port GPIOC
+#define Fiber1_Pin GPIO_PIN_0
+#define Fiber1_GPIO_Port GPIOC
+#define Optical_Fiber1_Pin GPIO_PIN_4
+#define Optical_Fiber1_GPIO_Port GPIOA
+#define Optical_Fiber2_Pin GPIO_PIN_5
+#define Optical_Fiber2_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

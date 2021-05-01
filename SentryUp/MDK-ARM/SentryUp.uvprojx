@@ -336,9 +336,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER,STM32F407xx,__HIGH,__USE_RTOS</Define>
+              <Define>USE_HAL_DRIVER,STM32F407xx,__HIGH,__USE_RTOS,WatchDoglength=10</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;      ../USB_DEVICE/App;      ../USB_DEVICE/Target;      ../Drivers/STM32F4xx_HAL_Driver/Inc;      ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;      ../Middlewares/Third_Party/FreeRTOS/Source/include;      ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;      ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;      ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;      ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;      ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;      ../Drivers/CMSIS/Include;      ..\..\RM_LIB_Master\Robot\Inc;      ..\USER\Inc;      ..\..\..\RM2021Sentry</IncludePath>
+              <IncludePath>../Core/Inc;     ../USB_DEVICE/App;     ../USB_DEVICE/Target;     ../Drivers/STM32F4xx_HAL_Driver/Inc;     ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;     ../Middlewares/Third_Party/FreeRTOS/Source/include;     ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;     ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;     ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;     ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;     ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;     ../Drivers/CMSIS/Include;     ..\..\RM_LIB_Master\Robot\Inc;     ..\USER\Inc;     ..\..\..\RM2021Sentry;     ..\..\..\RM2021_Sentry</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -926,6 +926,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\RM_LIB_Master\Robot\Src\WatchDog.c</FilePath>
             </File>
+            <File>
+              <FileName>kalman.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RM_LIB_Master\Robot\Src\kalman.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -955,6 +960,21 @@
               <FileName>PC_Task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\USER\Src\PC_Task.c</FilePath>
+            </File>
+            <File>
+              <FileName>Chassis_Fire_Task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\Src\Chassis_Fire_Task.c</FilePath>
+            </File>
+            <File>
+              <FileName>PTZ_Runtime_Task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\Src\PTZ_Runtime_Task.c</FilePath>
+            </File>
+            <File>
+              <FileName>Power_Protection_Task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\Src\Power_Protection_Task.c</FilePath>
             </File>
           </Files>
         </Group>

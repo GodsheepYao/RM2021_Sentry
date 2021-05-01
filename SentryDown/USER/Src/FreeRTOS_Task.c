@@ -20,10 +20,10 @@ RM3510_TypeDef Frictionwheel1,Frictionwheel2;
 int16_t PluckSpeedExp = -2000;
 
 //摩擦轮速度期望
-int16_t FrictionwheelSpeedExp = 5000;
+int16_t FrictionwheelSpeedExp = -5000;
 
 //Pitch轴角度、速度PID
-PID_Smis GM6020_Pitch_PID = {.Kp = 15,.Ki = 0.1,.Kd = -25,.limit = 5000};
+PID_Smis GM6020_Pitch_PID = {.Kp = 18,.Ki = 0.1,.Kd = -25,.limit = 5000};
 PID GM6020_Pitch_SPID = {.Kp = 10,.Ki = 0,.Kd = 3};
 
 //Yaw轴角度、速度PID
@@ -41,10 +41,10 @@ PID Frictionwheel2_SPID = {.Kp = 5,.Ki = 0,.Kd = 0,.limit = 1000};
 Robot_Status_t Robot_Status;
 
 //云台期望
-PTZAngle_Ref_t PTZAngle_Ref = {.Pitch = PTZ_Pitch_median,.Yaw = 0};
+PTZAngle_Ref_t PTZAngle_Ref = {.Pitch = PTZ_Pitch_median,.Yaw = PTZ_Yaw_median};
 
 //上下板通信数据
-UpBoard_Data_t Up_Data;
+UpBoard_Data_t UpBoard_Data;
 
 //所有电机看门狗
 WatchDog_TypeDef Yaw_Dog, Pitch_Dog, Friction1_Dog, Friction2_Dog, Pluck_Dog;
@@ -66,6 +66,10 @@ void StartTask(void) {
 	CanFilter_Init(&hcan1);
 	HAL_CAN_Start(&hcan1);
 	HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
+    
+    CanFilter_Init(&hcan2);
+    HAL_CAN_Start(&hcan2);
+    HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO1_MSG_PENDING);  
     
     HAL_NVIC_DisableIRQ(DMA2_Stream2_IRQn);
     __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
@@ -114,6 +118,26 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
             break;
     }
   }
+}
+
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
+{
+    if(hcan->Instance == CAN2)
+    {
+        uint32_t can_id = CAN_Receive_DataFrame(&hcan2, CAN2_buff);
+        switch (can_id)
+        {
+            case 0x100:
+                memcpy(&UpBoard_Data, CAN2_buff,sizeof(UpBoard_Data_t));
+                Robot_Status.RS_Auto = UpBoard_Data.Status.RS_Auto;
+                Robot_Status.RS_Downctl = UpBoard_Data.Status.RS_Downctl;
+                Robot_Status.RS_Ready = UpBoard_Data.Status.RS_Ready;
+                break;
+            case 0x0ff:
+                CAN_Remote_Rx(CAN2_buff);
+                break;
+        }
+    }
 }
 
 uint32_t Get_TimerTick() {

@@ -15,20 +15,17 @@ void PTZ_Init_task(void *pvParameters) {
 	
 	int16_t Send_buff[4] = { 0 };
 	
-	int16_t PTZ_Pitch_angle = QuickCentering(GM6020_Pitch.MchanicalAngle, PTZ_Pitch_median);
-	int16_t PTZ_Angle_Yaw = QuickCentering(GM6020_Yaw.MchanicalAngle, PTZ_Yaw_median);
+	int16_t PitchRampInit = QuickCentering(GM6020_Pitch.MchanicalAngle, PTZ_Pitch_median) - GM6020_Pitch.MchanicalAngle;
+	int16_t YawRampInit = QuickCentering(GM6020_Yaw.MchanicalAngle, PTZ_Yaw_median) - GM6020_Yaw.MchanicalAngle;	
 	
-	int16_t PitchRampInit = PTZ_Pitch_median - PTZ_Pitch_angle;
-	int16_t YawRampInit = PTZ_Yaw_median - PTZ_Angle_Yaw;	
-	
-	for( ;; ) {
-		PID_Control_Smis(QuickCentering(GM6020_Pitch.MchanicalAngle, PTZ_Pitch_median), 
-						PTZ_Pitch_median - (PitchRampInit * (1.0f - Slope(&PTZ_Init))), 
-						&GM6020_Pitch_PID, GM6020_Pitch.Speed);
+	for( ;; ) {       
+		PID_Control_Smis(GM6020_Pitch.MchanicalAngle,
+                         QuickCentering(GM6020_Pitch.MchanicalAngle, PTZ_Pitch_median - PitchRampInit * (1.0f - Slope(&PTZ_Init))), 
+						 &GM6020_Pitch_PID, GM6020_Pitch.Speed);
         
-		PID_Control_Smis(QuickCentering(GM6020_Yaw.MchanicalAngle, PTZ_Yaw_median), 
-						PTZ_Yaw_median - (YawRampInit * (1.0f - Slope(&PTZ_Init))), 
-						&GM6020_Yaw_PID, GM6020_Yaw.Speed);
+		PID_Control_Smis(GM6020_Yaw.MchanicalAngle,
+                         QuickCentering(GM6020_Yaw.MchanicalAngle, PTZ_Yaw_median - YawRampInit * (1.0f - Slope(&PTZ_Init))), 
+                         &GM6020_Yaw_PID, GM6020_Yaw.Speed);
         
         PID_Control(GM6020_Pitch.Speed, GM6020_Pitch_PID.pid_out, &GM6020_Pitch_SPID);
         limit(GM6020_Pitch_SPID.pid_out, 29000, -29000);
@@ -66,7 +63,7 @@ void PTZ_Init_task(void *pvParameters) {
                 (UBaseType_t)2,
                 (TaskHandle_t *)&Remote_task_Handler);
 #endif
-            Robot_Status.RS_Ready = STATUS_TURN_ON;
+//            Robot_Status.RS_Ready = STATUS_TURN_ON;           //由上板置位
             vTaskDelete(NULL);
         }
         vTaskDelayUntil(&xLastWakeTime, 2);
