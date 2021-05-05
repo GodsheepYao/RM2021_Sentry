@@ -10,7 +10,6 @@ TaskHandle_t Power_Protection_Handler;
 WatchDog_Flag_t DownDog_Flag;
 
 void Power_Protection_task(void *pvParameters) {
-    /* vTaskDelayUntil延时初始化 */
     portTickType xLastWakeTime = xTaskGetTickCount();
     for( ;; ) {
         WatchDog_Polling();
@@ -18,22 +17,22 @@ void Power_Protection_task(void *pvParameters) {
             Robot_Status.RS_Dead = 1;
             vTaskDelete(PTZ_Runtime_Handler);
             vTaskDelete(Chassis_Fire_Handler);
-            } else if (Robot_Status.RS_Dead && (!Robot_Status.RS_Kill && (DownDog_Flag == 0x15))) { //忽略P，摩擦轮，拨弹电机掉线
+        } else if (Robot_Status.RS_Dead && (!Robot_Status.RS_Kill && (DownDog_Flag == ALL_Flag))) { 
             Robot_Status.RS_Dead = 0;
             PTZAngle_Ref.Pitch = PTZ_Pitch_median;
             PTZAngle_Ref.Yaw = PTZ_Yaw_median;
-            xTaskCreate((TaskFunction_t)Chassis_Init_task,
-                (const char *)"Chassis_Init_task",
-                (uint16_t)256,
-                (void *)NULL,
-                (UBaseType_t)2,
-                (TaskHandle_t *)&Chassis_Init_Handler);
             xTaskCreate((TaskFunction_t)PTZ_Init_task,
                 (const char *)"PTZ_Init_task",
                 (uint16_t)256,
                 (void *)NULL,
-                (UBaseType_t)1,
+                (UBaseType_t)2,
                 (TaskHandle_t *)&PTZ_Init_Handler);
+            xTaskCreate((TaskFunction_t)Chassis_Fire_task,
+                (const char *)"Chassis_Fire_task",
+                (uint16_t)256,
+                (void *)NULL,
+                (UBaseType_t)2,
+                (TaskHandle_t *)&Chassis_Fire_Handler);
         }
         vTaskDelayUntil(&xLastWakeTime, 20);
     }

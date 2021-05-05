@@ -16,8 +16,8 @@ typedef enum {
     Pluck1Dog_Flag    = 0x04,
     Pluck2Dog_Flag    = 0x08,
     Friction1Dog_Flag = 0x10,
-    Friction2Dog_Flag = 0x12,
-    ChassisDog_Flag   = 0x14,
+    Friction2Dog_Flag = 0x20,
+    ChassisDog_Flag   = 0x40,
     ALL_Flag          = 0x7f,
 } WatchDog_Flag_t;
 

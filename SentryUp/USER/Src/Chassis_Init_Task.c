@@ -3,14 +3,14 @@
 #include "Remote_Task.h"
 #include "Chassis_Fire_Task.h"
 #include "PTZ_Runtime_Task.h"
-
+#include "Power_Protection_Task.h"
 
 TaskHandle_t Chassis_Init_Handler;
 int16_t Encoder_post = 13;
 void Chassis_Init_task(void *pvParameters) {
     int16_t Send_buff[4] = {0, 0, 0, 0};
     float SpeedExp = 2500;
-    uint8_t Direct = 0;
+    uint8_t Direct = 3;
     uint16_t time_count = 0;
     
     PID_Smis Chassis_PID = {.Kp = 12, .Ki = 0, .Kd = 0, .limit = 1000};
@@ -35,9 +35,8 @@ void Chassis_Init_task(void *pvParameters) {
             if(HAL_GPIO_ReadPin(Optical_Fiber1_GPIO_Port, Optical_Fiber1_Pin)) 
                 SpeedExp = -2500;
             else {
-                SpeedExp = -100;
+                SpeedExp = 100;
                 Encoder_Max = Encoder_Locat - Encoder_offsef - Encoder_post;
-                Direct = 2;
                 time_count++;
                 if(time_count == 50) {
                     Direct = 2;
@@ -53,7 +52,7 @@ void Chassis_Init_task(void *pvParameters) {
             PID_Control_Smis(Encoder_Locat - Encoder_offsef, Encoder_Max / 2.0f , &Chassis_PID, Encoder_Speed);
             limit(Chassis_PID.pid_out, 3000, -3000);
             SpeedExp = -Chassis_PID.pid_out;
-            if(__fabs((Encoder_Locat - Encoder_offsef) - (Encoder_Max / 2.0f)) < 1){
+            if(__fabs((Encoder_Locat - Encoder_offsef) - (Encoder_Max / 2.0f)) < 1) {
                Direct = 3;
             }
         
@@ -66,23 +65,16 @@ void Chassis_Init_task(void *pvParameters) {
                 (const char *)"Remote_task",
                 (uint16_t)256,
                 (void *)NULL,
-                (UBaseType_t)2,
+                (UBaseType_t)1,
                 (TaskHandle_t *)&Remote_task_Handler);
 #endif
-            xTaskCreate((TaskFunction_t)Chassis_Fire_task,
-                (const char *)"Chassis_Fire_task",
+            xTaskCreate((TaskFunction_t)Power_Protection_task,
+                (const char *)"Power_Protection_task",
                 (uint16_t)256,
                 (void *)NULL,
-                (UBaseType_t)2,
-                (TaskHandle_t *)&Chassis_Fire_Handler);
-            xTaskCreate((TaskFunction_t)PTZ_Runtime_task,
-                (const char *)"PTZ_Runtime_task",
-                (uint16_t)256,
-                (void *)NULL,
-                (UBaseType_t)2,
-                (TaskHandle_t *)&PTZ_Runtime_Handler);
+                (UBaseType_t)1,
+                (TaskHandle_t *)&Power_Protection_Handler);
             Robot_Status.RS_Ready = STATUS_TURN_ON;
-
             vTaskDelete(NULL);
         }
         
@@ -90,7 +82,10 @@ void Chassis_Init_task(void *pvParameters) {
         limit(ChassisMotor_SPID.pid_out, 16384, -16384);
         Send_buff[0] = ChassisMotor_SPID.pid_out;
         
+#if TEST == 0        
         MotorSend(&hcan1, 0x200, Send_buff);
+#endif
+        
         vTaskDelayUntil(&xLastWakeTime, 2);
     }
 

@@ -15,7 +15,7 @@ M2006_TypeDef Pluck1, Pluck2;
 RM3508_TypeDef ChassisMotor;
 
 //摩擦轮电机数据
-RM3510_TypeDef Frictionwheel1, Frictionwheel2;
+RM3508_TypeDef Frictionwheel1, Frictionwheel2;
 
 //云台期望角度结构体
 PTZAngle_Ref_t PTZAngle_Ref = {.Pitch = PTZ_Pitch_median, .Yaw = PTZ_Yaw_median};
@@ -24,7 +24,7 @@ PTZAngle_Ref_t PTZAngle_Ref = {.Pitch = PTZ_Pitch_median, .Yaw = PTZ_Yaw_median}
 int16_t ChassisSpeedExp = 0;
 
 //拨弹速度期望
-int16_t PluckSpeedExp = -2000;
+int16_t PluckSpeedExp = 2000;
 
 //摩擦轮速度期望
 int16_t FrictionwheelSpeedExp = 5000;
@@ -33,8 +33,8 @@ int16_t FrictionwheelSpeedExp = 5000;
 PID ChassisMotor_SPID = {.Kp = 10, .Ki = 0.5, .Kd = 1, .limit = 5000}; 
 
 //Pitch轴角度、速度PID
-PID_Smis GM6020_Pitch_PID = {.Kp = 5, .Ki = 0.1, .Kd = -25, .limit = 5000};
-PID GM6020_Pitch_SPID = {.Kp = 5, .Ki = 0, .Kd = 3};
+PID_Smis GM6020_Pitch_PID = {.Kp = 5, .Ki = 0, .Kd = 0, .limit = 5000};
+PID GM6020_Pitch_SPID = {.Kp = 5, .Ki = 0, .Kd = 0};
 
 //Yaw轴角度、速度PID
 PID_Smis GM6020_Yaw_PID = {.Kp = 5,.Ki = 0,.Kd = 0,.limit = 5000};
@@ -45,8 +45,8 @@ PID Pluck1_SPID = {.Kp = 13, .Ki = 0.5, .Kd = 1, .limit = 5000};
 PID Pluck2_SPID = {.Kp = 13, .Ki = 0.5, .Kd = 1, .limit = 5000};
 
 //摩擦轮电机速度PID
-PID Frictionwheel1_SPID = {.Kp = 0,.Ki = 0,.Kd = 0,.limit = 1000};
-PID Frictionwheel2_SPID = {.Kp = 0,.Ki = 0,.Kd = 0,.limit = 1000};
+PID Frictionwheel1_SPID = {.Kp = 10, .Ki = 0.2, .Kd = 1, .limit = 1000};
+PID Frictionwheel2_SPID = {.Kp = 10, .Ki = 0.2, .Kd = 1, .limit = 1000};
 
 //编码器数据
 int16_t Encoder_Rand;
@@ -83,7 +83,7 @@ void StartTask(void) {
     __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
     HAL_UART_Receive_DMA(&huart1, usart1_dma_buff, 30);
     
-    HAL_TIM_Base_Init(&htim2);
+    HAL_TIM_Base_Start(&htim2);
     HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
     __HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
     
@@ -96,12 +96,12 @@ void StartTask(void) {
     WatchDog_Init(&Pluck2_Dog, 10);
     WatchDog_Init(&Remote_Dog, 10);
     
-    xTaskCreate((TaskFunction_t)Power_Protection_task,
-                (const char *)"Power_Protection_task",
+    xTaskCreate((TaskFunction_t)Chassis_Init_task,
+                (const char *)"Chassis_Init_task",
                 (uint16_t)256,
                 (void *)NULL,
-                (UBaseType_t)1,
-                (TaskHandle_t *)&Power_Protection_Handler);
+                (UBaseType_t)3,
+                (TaskHandle_t *)&Chassis_Init_Handler);
     xTaskCreate((TaskFunction_t)PC_task,
                 (const char *)"PC_task",
                 (uint16_t)256,
@@ -119,6 +119,14 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
                 RM3508_Receive(&ChassisMotor, CAN1_buff);
                 Feed_Dog(&Chassis_Dog);
                 break;
+            case 0x203:
+                RM3508_Receive(&Frictionwheel1, CAN1_buff);
+                Feed_Dog(&Friction1_Dog);
+                break;
+            case 0x204:
+                RM3508_Receive(&Frictionwheel2, CAN1_buff);
+                Feed_Dog(&Friction2_Dog);
+                break;
             case 0x205:
                 GM6020_Receive(&GM6020_Yaw, CAN1_buff);
                 Feed_Dog(&Yaw_Dog);
@@ -126,6 +134,14 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
             case 0x206:
                 GM6020_Receive(&GM6020_Pitch, CAN1_buff);
                 Feed_Dog(&Pitch_Dog);
+                break;
+            case 0x207:
+                M2006_Receive(&Pluck1, CAN1_buff);
+                Feed_Dog(&Pluck1_Dog);
+                break;
+            case 0x208:
+                M2006_Receive(&Pluck2, CAN1_buff);
+                Feed_Dog(&Pluck2_Dog);
                 break;
         }
   }

@@ -3,7 +3,6 @@
 #include "kalman.h"
 #include "Chassis.h"
 
-/*PID进程*/
 TaskHandle_t PTZ_Runtime_Handler;
 void PTZ_Runtime_task(void *pvParameters)
 {
@@ -11,7 +10,10 @@ void PTZ_Runtime_task(void *pvParameters)
     
     PTZAngle_Ref_t Temp;
     
-    //云台输入卡尔曼滤波
+    uint16_t blocked_count1 = 0, blocked_count2 = 0;
+    uint8_t blocked_flag1 = 0, blocked_flag2 = 0;
+    int16_t PluckSpeed1 = 0, PluckSpeed2 = 0;
+    
     kalman_filter_t PTZAngleFilter_Yaw;
     kalman_filter_t PTZAngleFilter_Pitch;
     
@@ -30,6 +32,50 @@ void PTZ_Runtime_task(void *pvParameters)
         Temp.Yaw = Kalman_Filter(&PTZAngleFilter_Yaw,PTZAngle_Ref.Yaw);
         Temp.Pitch = Kalman_Filter(&PTZAngleFilter_Pitch,PTZAngle_Ref.Pitch);
         
+        if(Robot_Status.RS_Fire) {
+            PluckSpeed1 = PluckSpeedExp;
+            PluckSpeed2 = PluckSpeedExp;
+
+            if(blocked_flag1 == 0) {
+                if(Pluck1.Speed < 500) {
+                    ++blocked_count1;
+                    if(blocked_count1 == 250 ) {
+                        blocked_flag1 = 1;
+                        PluckSpeed1 = -PluckSpeedExp;
+                    }
+                }
+            }
+            else {
+                PluckSpeed1 = -PluckSpeedExp;
+                --blocked_count1;
+                if(blocked_count1 == 0)blocked_flag1 = 0;
+            }
+
+  
+            if(blocked_flag2 == 0) {
+                if(Pluck2.Speed < 500) {
+                    ++blocked_count2;
+                    if(blocked_count2 == 250) {
+                        blocked_flag2 = 1;
+                        PluckSpeed2 = -PluckSpeedExp;
+                    }
+                }
+            }
+            else {
+                PluckSpeed2 = -PluckSpeedExp;
+                --blocked_count2;
+                if(blocked_count2 == 0)blocked_flag2 = 0;
+            }
+        }
+        else {
+            blocked_flag1 = 0;
+            blocked_flag2 = 0;
+            blocked_count1 = 0;
+            blocked_count2 = 0;
+            PluckSpeed1 = 0;
+            PluckSpeed2 = 0;
+        }
+        
         PID_Control_Smis(GM6020_Pitch.MchanicalAngle, Temp.Pitch, &GM6020_Pitch_PID, GM6020_Pitch.Speed);
         PID_Control(GM6020_Pitch.Speed, GM6020_Pitch_PID.pid_out, &GM6020_Pitch_SPID);
         limit(GM6020_Pitch_SPID.pid_out, 29000, -29000);
@@ -37,9 +83,17 @@ void PTZ_Runtime_task(void *pvParameters)
         PID_Control_Smis(GM6020_Yaw.MchanicalAngle, Temp.Yaw, &GM6020_Yaw_PID, GM6020_Yaw.Speed);
         PID_Control(GM6020_Yaw.Speed, GM6020_Yaw_PID.pid_out, &GM6020_Yaw_SPID);
         limit(GM6020_Yaw_SPID.pid_out, 29000, -29000);
+        
+        PID_Control(Pluck1.Speed, PluckSpeed1, &Pluck1_SPID);
+        limit(Pluck1_SPID.pid_out, 10000, -10000);
+
+        PID_Control(Pluck2.Speed, PluckSpeed2, &Pluck2_SPID);
+        limit(Pluck2_SPID.pid_out, 10000, -10000);
 
         Send_buff[0] = GM6020_Yaw_SPID.pid_out;
         Send_buff[1] = GM6020_Pitch_SPID.pid_out;
+        Send_buff[2] = Pluck1_SPID.pid_out;
+        Send_buff[3] = Pluck2_SPID.pid_out;
 
 #if TEST == 0
         MotorSend(&hcan1, 0x1ff, Send_buff);

@@ -1,7 +1,8 @@
 #include "PTZ_Init_Task.h"
 #include "FreeRTOS_Task.h"
-//P1970 2513 1042
-//Y3476 4792 2100 
+#include "PTZ_Runtime_Task.h"
+
+uint8_t PTZ_Init_Ready = 0;
 /*云台归中进程*/
 TaskHandle_t PTZ_Init_Handler;
 void PTZ_Init_task(void *pvParameters) {
@@ -40,8 +41,15 @@ void PTZ_Init_task(void *pvParameters) {
 #else
         UNUSED(Send_buff);
 #endif
-        if (Slope(&PTZ_Init) == 1.0f && Robot_Status.RS_Ready == STATUS_TURN_ON)
+        if (Slope(&PTZ_Init) == 1.0f)
         {
+            
+            xTaskCreate((TaskFunction_t)PTZ_Runtime_task,
+                (const char *)"PTZ_Runtime_task",
+                (uint16_t)256,
+                (void *)NULL,
+                (UBaseType_t)2,
+                (TaskHandle_t *)&PTZ_Runtime_Handler);
 			vTaskDelete(NULL);
         }
         vTaskDelayUntil(&xLastWakeTime, 2);

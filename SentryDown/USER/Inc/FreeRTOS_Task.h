@@ -34,7 +34,7 @@ extern GM6020_TypeDef GM6020_Pitch,GM6020_Yaw;          //!<@brief Pitch轴、Ya
 
 extern M2006_TypeDef Pluck1;                            //!<@brief 拨弹电机数据
 
-extern RM3510_TypeDef Frictionwheel1,Frictionwheel2;    //!<@brief 摩擦轮电机数据
+extern RM3508_TypeDef Frictionwheel1,Frictionwheel2;    //!<@brief 摩擦轮电机数据
 
 extern PID_Smis GM6020_Pitch_PID;           //!<@brief Pitch轴角度PID
 extern PID GM6020_Pitch_SPID;               //!<@brief Pitch轴速度PID

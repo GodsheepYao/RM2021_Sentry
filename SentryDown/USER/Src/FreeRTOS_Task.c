@@ -14,7 +14,7 @@ GM6020_TypeDef GM6020_Pitch,GM6020_Yaw;
 M2006_TypeDef Pluck1;
 
 //摩擦轮电机数据
-RM3510_TypeDef Frictionwheel1,Frictionwheel2;
+RM3508_TypeDef Frictionwheel1, Frictionwheel2;
 
 //拨弹速度期望
 int16_t PluckSpeedExp = -2000;
@@ -23,12 +23,12 @@ int16_t PluckSpeedExp = -2000;
 int16_t FrictionwheelSpeedExp = -5000;
 
 //Pitch轴角度、速度PID
-PID_Smis GM6020_Pitch_PID = {.Kp = 18,.Ki = 0.1,.Kd = -25,.limit = 5000};
-PID GM6020_Pitch_SPID = {.Kp = 10,.Ki = 0,.Kd = 3};
+PID_Smis GM6020_Pitch_PID = {.Kp = 10,.Ki = 0.1,.Kd = -15,.limit = 5000};
+PID GM6020_Pitch_SPID = {.Kp = 18,.Ki = 0,.Kd = 3};
 
 //Yaw轴角度、速度PID
-PID_Smis GM6020_Yaw_PID = {.Kp = 20,.Ki = 0.1,.Kd = -45,.limit = 5000};
-PID GM6020_Yaw_SPID = {.Kp = 10,.Ki = 0,.Kd = 0};
+PID_Smis GM6020_Yaw_PID = {.Kp = 10,.Ki = 0,.Kd = -45,.limit = 5000};
+PID GM6020_Yaw_SPID = {.Kp = 15,.Ki = 0,.Kd = 2};
 
 //拨弹电机速度PID
 PID Pluck1_SPID = {.Kp = 5,.Ki = 0,.Kd = 0,.limit = 5000};
@@ -97,11 +97,11 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     uint32_t can_id = CAN_Receive_DataFrame(&hcan1, CAN1_buff);
     switch (can_id) {
         case 0x203:
-            RM3510_Receive(&Frictionwheel1, CAN1_buff);
+            RM3508_Receive(&Frictionwheel1, CAN1_buff);
             Feed_Dog(&Friction1_Dog);
             break;
         case 0x204:
-            RM3510_Receive(&Frictionwheel2, CAN1_buff);
+            RM3508_Receive(&Frictionwheel2, CAN1_buff);
             Feed_Dog(&Friction2_Dog);
             break;
         case 0x205:

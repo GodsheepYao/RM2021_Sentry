@@ -27,15 +27,19 @@ void StartTask(void);
 
 extern GM6020_TypeDef GM6020_Pitch,GM6020_Yaw;          //!<@brief Pitch轴、Yaw轴电机数据
 
-extern M2006_TypeDef Pluck1;                            //!<@brief 拨弹电机数据
+extern M2006_TypeDef Pluck1, Pluck2;                    //!<@brief 拨弹电机数据
 
-extern RM3510_TypeDef Frictionwheel1,Frictionwheel2;    //!<@brief 摩擦轮电机数据
+extern RM3508_TypeDef Frictionwheel1,Frictionwheel2;    //!<@brief 摩擦轮电机数据
 
 extern RM3508_TypeDef ChassisMotor;                     //!<@brief 底盘电机数据
 
 extern int16_t ChassisSpeedExp;             //!<@brief 底盘电机期望
 
 extern PTZAngle_Ref_t PTZAngle_Ref;         //!<@brief 云台角度期望
+
+extern int16_t FrictionwheelSpeedExp;       //!<@brief 摩擦轮速度期望
+
+extern int16_t PluckSpeedExp;               //!<@brief 拨弹速度期望
 
 extern PID ChassisMotor_SPID;       //!<@brief 底盘速度PID
 
@@ -45,7 +49,7 @@ extern PID GM6020_Pitch_SPID;       //!<@brief Pitch轴速度PID
 extern PID_Smis GM6020_Yaw_PID;     //!<@brief Yaw轴角度PID
 extern PID GM6020_Yaw_SPID;         //!<@brief Yaw轴速度PID
 
-extern PID Pluck1_SPID;             //!<@brief 拨弹电机速度PID
+extern PID Pluck1_SPID, Pluck2_SPID;//!<@brief 拨弹电机速度PID
 
 extern PID Frictionwheel1_SPID;     //!<@brief 摩擦轮1速度PID
 extern PID Frictionwheel2_SPID;     //!<@brief 摩擦轮2速度PID
