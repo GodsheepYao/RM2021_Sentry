@@ -10,11 +10,11 @@ void Fire_Mechanism_Task(void *pvParameters){
     portTickType xLastWakeTime = xTaskGetTickCount();
     
     for( ;; ) {
-        if(Robot_Status.RS_Loaded)
+        if(Robot_Status.RS_Loaded && Frictionwheel1.temp < 80 && Frictionwheel2.temp < 80)
             FrictionwheelSpeed = FrictionwheelSpeedExp;
         else
             FrictionwheelSpeed = 0;
-        
+    
         PID_Control(Frictionwheel1.Speed, -FrictionwheelSpeed, &Frictionwheel1_SPID);
         limit(Frictionwheel1_SPID.pid_out, 29000, -29000);
         

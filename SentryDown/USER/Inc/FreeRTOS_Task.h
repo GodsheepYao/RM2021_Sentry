@@ -24,9 +24,8 @@ typedef struct {
     uint32_t RS_Auto      :1; //!<@brief 自瞄模式
 } Robot_Status_t;
 
-typedef struct __PACK_UP_DOWN {
-    int16_t Encoder_Locat;
-    int16_t Speed;
+typedef struct __PACKED_UpBoard_STRUCT {
+    int16_t Radiofreq_Limit;
     Robot_Status_t Status;
 }UpBoard_Data_t;
 
@@ -51,9 +50,10 @@ extern PTZAngle_Ref_t PTZAngle_Ref;     //!<@brief 云台角度期望
 extern int16_t PluckSpeedExp;           //!<@brief 拨弹速度期望
 extern int16_t FrictionwheelSpeedExp;   //!<@brief 拨弹速度期望
 
-extern Robot_Status_t Robot_Status; //!<@brief 机器人全局标志位
-extern UpBoard_Data_t UpBoard_Data;      //!<@brief 上下板通信数据
+extern Robot_Status_t Robot_Status;     //!<@brief 机器人全局标志位
+extern UpBoard_Data_t UpBoard_Data;     //!<@brief 上下板通信数据
 
+extern int16_t Pill_Out;    //!<@brief 下云台出弹计数
 
 extern WatchDog_TypeDef Yaw_Dog, Pitch_Dog, Friction1_Dog, Friction2_Dog, Pluck_Dog; //!<@brief 所有下云台电机看门狗
 

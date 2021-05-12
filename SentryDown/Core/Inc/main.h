@@ -60,6 +60,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define DownMode_LED_Pin GPIO_PIN_13
 #define DownMode_LED_GPIO_Port GPIOC
+#define Pill_Count2_Pin GPIO_PIN_5
+#define Pill_Count2_GPIO_Port GPIOC
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

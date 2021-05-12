@@ -16,14 +16,20 @@ void PTZ_Runtime_task(void *pvParameters) {
     uint16_t blocked_count1 = 0;
     uint8_t blocked_flag1 = 0;
     int16_t PluckSpeed1 = 0;
+    uint16_t pill_count_time = 0;
     
-    for (;;) {
-        /* 云台输入滤波平滑化 */
-        
+    for (;;) {    
         /* P轴限幅 */
         limit(PTZAngle_Ref.Pitch, PTZ_Pitch_MAX, PTZ_Pitch_MIN);
         
-        if(Robot_Status.RS_Fire){
+        if(HAL_GPIO_ReadPin(Pill_Count2_GPIO_Port, Pill_Count2_Pin) == GPIO_PIN_RESET && pill_count_time < 5) {
+            Pill_Out++;
+            pill_count_time++;
+        }
+        else 
+            pill_count_time = 0;
+        
+        if(Robot_Status.RS_Fire && UpBoard_Data.Radiofreq_Limit != 0){
             PluckSpeed1 = PluckSpeedExp;
             if(blocked_flag1 == 0){
                 if(Pluck1.Speed > -500){
@@ -40,12 +46,13 @@ void PTZ_Runtime_task(void *pvParameters) {
                 if(blocked_count1 == 0) blocked_flag1 = 0;
             }
         }
-        else{
+        else {
             blocked_count1 = 0;
             blocked_flag1 = 0;
             PluckSpeed1 = 0;
         }
         
+        PluckSpeed1 *= UpBoard_Data.Radiofreq_Limit / 100;
         PID_Control(Pluck1.Speed, PluckSpeed1, &Pluck1_SPID);
         limit(Pluck1_SPID.pid_out, 10000, -10000);
         

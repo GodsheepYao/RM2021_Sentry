@@ -34,6 +34,7 @@ void Remote_task(void *pvParameters) {
 void RemoteControlProcess(Remote *rc) {
     static uint8_t Up_count = 0;
     static uint8_t Down_count = 0;
+    static uint8_t pluck_flag = 0;
     
     if(rc->ch1 > 1600 && Robot_Status.RS_Downctl)
     {
@@ -70,21 +71,28 @@ void RemoteControlProcess(Remote *rc) {
         switch(rc->s1){
             case 1:
                 Robot_Status.RS_Fire = STATUS_TURN_ON;
+                if(pluck_flag == 1) {
+                    Pluck_Select++;
+                    pluck_flag = 0;
+                }
+                if(Pluck_Select > 3) Pluck_Select = 1;
                 break;
             case 3:
                 Robot_Status.RS_Loaded = STATUS_TURN_ON;
                 Robot_Status.RS_Fire = STATUS_TURN_OFF;
+                pluck_flag = 1;
                 break;
             case 2:
                 Robot_Status.RS_Loaded = STATUS_TURN_OFF;
                 Robot_Status.RS_Fire = STATUS_TURN_OFF;
+                Pluck_Select = 0;
                 break;
        }
        
     }
     ChassisSpeedExp = (rc->ch0 - REMOTE_CONTROLLER_STICK_OFFSET) * Sensitivity_Chassis;
     
-    if(rc->s2 != 3) Robot_Status.RS_Auto = 0;
+    if(rc->s2 != 3) Robot_Status.RS_Auto = STATUS_TURN_OFF;
 
 }
 

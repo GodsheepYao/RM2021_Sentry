@@ -22,6 +22,8 @@ void PC_task(void *pvParameters){
             portEXIT_CRITICAL();
         }
         
+        CAN_Send_StdDataFrame(&hcan2, 0x101, (uint8_t*)&Pill_Out);
+        
         if (Robot_Status.RS_Downctl)
             HAL_GPIO_WritePin(DownMode_LED_GPIO_Port, DownMode_LED_Pin, GPIO_PIN_RESET);   
         else 

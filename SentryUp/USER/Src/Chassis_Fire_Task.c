@@ -30,7 +30,7 @@ void Chassis_Fire_task(void *pvParameters) {
 //            limit();
 //        }
         
-        if(Robot_Status.RS_Loaded)
+        if(Robot_Status.RS_Loaded && Frictionwheel1.temp < 80 && Frictionwheel2.temp < 80)
             FrictionwheelSpeed = FrictionwheelSpeedExp;
         else
             FrictionwheelSpeed = 0;
@@ -42,8 +42,11 @@ void Chassis_Fire_task(void *pvParameters) {
         limit(Frictionwheel1_SPID.pid_out, 29000, -29000);
         PID_Control(Frictionwheel2.Speed, FrictionwheelSpeed, &Frictionwheel2_SPID);
         limit(Frictionwheel2_SPID.pid_out, 29000, -29000);
-        
-        Send_buff[0] = ChassisMotor_SPID.pid_out;
+       
+        float bili = refree_power_limit_bili();
+#if Chassis_Active        
+        Send_buff[0] = ChassisMotor_SPID.pid_out * bili;
+#endif
         Send_buff[2] = Frictionwheel1_SPID.pid_out;
         Send_buff[3] = Frictionwheel2_SPID.pid_out;
         

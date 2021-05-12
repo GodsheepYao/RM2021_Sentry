@@ -1,3 +1,6 @@
 [submodule "RM_LIB_Master"]
 	path = RM_LIB_Master
 	url = http://www.kdrobot.top/git/KDRobot_RM/RM_LIB.git
+[submodule "RM2021Referee"]
+	path = RM2021Referee
+	url = http://www.kdrobot.top/git/KDRobot_RM/RM2021Referee.git

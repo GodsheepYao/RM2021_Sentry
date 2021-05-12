@@ -31,40 +31,52 @@ void PTZ_Runtime_task(void *pvParameters)
         limit(PTZAngle_Ref.Yaw, PTZ_Yaw_MAX, PTZ_Yaw_MIN);
         Temp.Yaw = Kalman_Filter(&PTZAngleFilter_Yaw,PTZAngle_Ref.Yaw);
         Temp.Pitch = Kalman_Filter(&PTZAngleFilter_Pitch,PTZAngle_Ref.Pitch);
+        																	
+        if(HAL_GPIO_ReadPin(Pill_Count1_GPIO_Port, Pill_Count1_Pin) == GPIO_PIN_RESET) {
+            Pill_SupplyDown++;
+        }
         
         if(Robot_Status.RS_Fire) {
-            PluckSpeed1 = PluckSpeedExp;
-            PluckSpeed2 = PluckSpeedExp;
-
-            if(blocked_flag1 == 0) {
-                if(Pluck1.Speed < 500) {
-                    ++blocked_count1;
-                    if(blocked_count1 == 250 ) {
-                        blocked_flag1 = 1;
-                        PluckSpeed1 = -PluckSpeedExp;
+            if(Pluck_Select == 1 || Pluck_Select == 3) {
+                PluckSpeed1 = PluckSpeedExp;
+                if(blocked_flag1 == 0) {
+                    if(Pluck1.Speed < 500) {
+                        ++blocked_count1;
+                        if(blocked_count1 == 250 ) {
+                            blocked_flag1 = 1;
+                            PluckSpeed1 = -PluckSpeedExp;
+                        }
                     }
+                }
+                else {
+                    PluckSpeed1 = -PluckSpeedExp;
+                    --blocked_count1;
+                    if(blocked_count1 == 0)blocked_flag1 = 0;
                 }
             }
             else {
-                PluckSpeed1 = -PluckSpeedExp;
-                --blocked_count1;
-                if(blocked_count1 == 0)blocked_flag1 = 0;
+                PluckSpeed1 = 0;
             }
 
-  
-            if(blocked_flag2 == 0) {
-                if(Pluck2.Speed < 500) {
-                    ++blocked_count2;
-                    if(blocked_count2 == 250) {
-                        blocked_flag2 = 1;
-                        PluckSpeed2 = -PluckSpeedExp;
+            if(Pluck_Select == 2 || Pluck_Select == 3) {
+                PluckSpeed2 = PluckSpeedExp;
+                if(blocked_flag2 == 0) {
+                    if(Pluck2.Speed < 500) {
+                        ++blocked_count2;
+                        if(blocked_count2 == 250) {
+                            blocked_flag2 = 1;
+                            PluckSpeed2 = -PluckSpeedExp;
+                        }
                     }
+                }
+                else {
+                    PluckSpeed2 = -PluckSpeedExp;
+                    --blocked_count2;
+                    if(blocked_count2 == 0)blocked_flag2 = 0;
                 }
             }
             else {
-                PluckSpeed2 = -PluckSpeedExp;
-                --blocked_count2;
-                if(blocked_count2 == 0)blocked_flag2 = 0;
+                PluckSpeed2 = 0;
             }
         }
         else {
@@ -89,7 +101,8 @@ void PTZ_Runtime_task(void *pvParameters)
 
         PID_Control(Pluck2.Speed, PluckSpeed2, &Pluck2_SPID);
         limit(Pluck2_SPID.pid_out, 10000, -10000);
-
+        
+        refree_shooter_limit_bili();
         Send_buff[0] = GM6020_Yaw_SPID.pid_out;
         Send_buff[1] = GM6020_Pitch_SPID.pid_out;
         Send_buff[2] = Pluck1_SPID.pid_out;

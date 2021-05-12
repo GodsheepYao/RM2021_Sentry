@@ -70,13 +70,13 @@ void RemoteControlProcess(Remote *rc){
     }
     }
     
-    if(rc->s2 != 3) Robot_Status.RS_Auto = 0;   
+    if(rc->s2 != 3) Robot_Status.RS_Auto = STATUS_TURN_OFF;   
 
 }
 
 void MouseKeyControlProcess(Mouse *mouse, Key_t key, Key_t Lastkey)
 {
-    Robot_Status.RS_Auto = 1;
+    Robot_Status.RS_Auto = STATUS_TURN_ON;
 }
 
 void CAN_Remote_Rx(uint8_t* Data) {
