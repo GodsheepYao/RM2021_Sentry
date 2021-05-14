@@ -13,6 +13,8 @@ void PTZ_Runtime_task(void *pvParameters)
     uint16_t blocked_count1 = 0, blocked_count2 = 0;
     uint8_t blocked_flag1 = 0, blocked_flag2 = 0;
     int16_t PluckSpeed1 = 0, PluckSpeed2 = 0;
+    int16_t Down_Pill = 0;
+    uint8_t supply_flag = 0;
     
     kalman_filter_t PTZAngleFilter_Yaw;
     kalman_filter_t PTZAngleFilter_Pitch;
@@ -31,62 +33,60 @@ void PTZ_Runtime_task(void *pvParameters)
         limit(PTZAngle_Ref.Yaw, PTZ_Yaw_MAX, PTZ_Yaw_MIN);
         Temp.Yaw = Kalman_Filter(&PTZAngleFilter_Yaw,PTZAngle_Ref.Yaw);
         Temp.Pitch = Kalman_Filter(&PTZAngleFilter_Pitch,PTZAngle_Ref.Pitch);
-        																	
-        if(HAL_GPIO_ReadPin(Pill_Count1_GPIO_Port, Pill_Count1_Pin) == GPIO_PIN_RESET) {
-            Pill_SupplyDown++;
-        }
-        
-        if(Robot_Status.RS_Fire) {
-            if(Pluck_Select == 1 || Pluck_Select == 3) {
-                PluckSpeed1 = PluckSpeedExp;
-                if(blocked_flag1 == 0) {
-                    if(Pluck1.Speed < 500) {
-                        ++blocked_count1;
-                        if(blocked_count1 == 250 ) {
-                            blocked_flag1 = 1;
-                            PluckSpeed1 = -PluckSpeedExp;
-                        }
-                    }
-                }
-                else {
-                    PluckSpeed1 = -PluckSpeedExp;
-                    --blocked_count1;
-                    if(blocked_count1 == 0)blocked_flag1 = 0;
-                }
-            }
-            else {
-                PluckSpeed1 = 0;
-            }
 
-            if(Pluck_Select == 2 || Pluck_Select == 3) {
-                PluckSpeed2 = PluckSpeedExp;
-                if(blocked_flag2 == 0) {
-                    if(Pluck2.Speed < 500) {
-                        ++blocked_count2;
-                        if(blocked_count2 == 250) {
-                            blocked_flag2 = 1;
-                            PluckSpeed2 = -PluckSpeedExp;
-                        }
+        Down_Pill = Pill_SupplyDown - Pill_Out;
+        
+        
+        if(!HAL_GPIO_ReadPin(Supply_GPIO_Port, Supply_Pin)) supply_flag = 1;
+        else supply_flag = 0;
+        
+        if(((Pluck_Select == 1 || Pluck_Select == 3 || Down_Pill < 100) && Robot_Status.RS_Fire) ||
+            (supply_flag && Down_Pill < 100)) {
+            PluckSpeed1 = PluckSpeedExp;
+            if(blocked_flag1 == 0) {
+                if(Pluck1.Speed < 500) {
+                    ++blocked_count1;
+                    if(blocked_count1 == 250 ) {
+                        blocked_flag1 = 1;
+                        PluckSpeed1 = -PluckSpeedExp;
                     }
-                }
-                else {
-                    PluckSpeed2 = -PluckSpeedExp;
-                    --blocked_count2;
-                    if(blocked_count2 == 0)blocked_flag2 = 0;
                 }
             }
             else {
-                PluckSpeed2 = 0;
+                PluckSpeed1 = -PluckSpeedExp;
+                --blocked_count1;
+                if(blocked_count1 == 0)blocked_flag1 = 0;
             }
         }
         else {
             blocked_flag1 = 0;
-            blocked_flag2 = 0;
-            blocked_count1 = 0;
-            blocked_count2 = 0;
             PluckSpeed1 = 0;
-            PluckSpeed2 = 0;
+            blocked_count1 = 0;
         }
+
+        if((Pluck_Select == 2 || Pluck_Select == 3) && Robot_Status.RS_Fire) {
+            PluckSpeed2 = PluckSpeedExp;
+            if(blocked_flag2 == 0) {
+                if(Pluck2.Speed < 500) {
+                    ++blocked_count2;
+                    if(blocked_count2 == 250) {
+                        blocked_flag2 = 1;
+                        PluckSpeed2 = -PluckSpeedExp;
+                    }
+                }
+            }
+            else {
+                PluckSpeed2 = -PluckSpeedExp;
+                --blocked_count2;
+                if(blocked_count2 == 0)blocked_flag2 = 0;
+            }
+        }
+        else {
+            blocked_flag2 = 0;
+            PluckSpeed2 = 0;
+            blocked_count2 = 0;
+        }
+        
         
         PID_Control_Smis(GM6020_Pitch.MchanicalAngle, Temp.Pitch, &GM6020_Pitch_PID, GM6020_Pitch.Speed);
         PID_Control(GM6020_Pitch.Speed, GM6020_Pitch_PID.pid_out, &GM6020_Pitch_SPID);

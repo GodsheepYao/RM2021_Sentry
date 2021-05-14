@@ -44,8 +44,8 @@ PID_Smis GM6020_Pitch_PID = {.Kp = 15, .Ki = 0.1, .Kd = -25, .limit = 5000};
 PID GM6020_Pitch_SPID = {.Kp = 10, .Ki = 0, .Kd = 3};
 
 //Yaw轴角度、速度PID
-PID_Smis GM6020_Yaw_PID = {.Kp = 15, .Ki = 0.1, .Kd = -35, .limit = 5000};
-PID GM6020_Yaw_SPID = {.Kp = 10, .Ki = 0, .Kd = 3};
+PID_Smis GM6020_Yaw_PID = {.Kp = 15, .Ki = 0.05, .Kd = -35, .limit = 5000};
+PID GM6020_Yaw_SPID = {.Kp = 10, .Ki = 0, .Kd = 5};
 
 //拨弹电机速度PID
 PID Pluck1_SPID = {.Kp = 13, .Ki = 0.5, .Kd = 1, .limit = 5000};
@@ -99,6 +99,8 @@ void StartTask(void) {
     HAL_TIM_Base_Start(&htim2);
     HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
     __HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
+    
+    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
     
     WatchDog_Init(&Chassis_Dog, 10);
     WatchDog_Init(&Yaw_Dog, 10);

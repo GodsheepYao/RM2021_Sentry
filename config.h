@@ -11,12 +11,12 @@
 	#define PTZ_Yaw_MIN (PTZ_Yaw_median - 8191/360*60)
 
 	#define PTZ_Pitch_median 6080
-	#define PTZ_Pitch_MAX 6631
-	#define PTZ_Pitch_MIN 5016
+	#define PTZ_Pitch_MAX 6400
+	#define PTZ_Pitch_MIN 5400
 
 	#define Sensitivity_Chassis 10
-	#define Sensitivity_Yaw 0.07f
-	#define Sensitivity_Pitch -0.07f
+	#define Sensitivity_Yaw -0.07f
+	#define Sensitivity_Pitch 0.07f
 	
 #endif
 

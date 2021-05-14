@@ -34,11 +34,11 @@ PID_Smis GM6020_Yaw_PID = {.Kp = 10,.Ki = 0,.Kd = -45,.limit = 2000};
 PID GM6020_Yaw_SPID = {.Kp = 10,.Ki = 0,.Kd = 2};
 
 //拨弹电机速度PID
-PID Pluck1_SPID = {.Kp = 5,.Ki = 0,.Kd = 0,.limit = 5000};
+PID Pluck1_SPID = {.Kp = 13,.Ki = 0.5,.Kd = 1,.limit = 5000};
 
-//摩擦轮电机速度PID
-PID Frictionwheel1_SPID = {.Kp = 5,.Ki = 0,.Kd = 0,.limit = 1000};
-PID Frictionwheel2_SPID = {.Kp = 5,.Ki = 0,.Kd = 0,.limit = 1000};
+//摩擦轮速度PID
+PID Frictionwheel1_SPID = {.Kp = 10,.Ki = 0.2,.Kd = 1,.limit = 1000};
+PID Frictionwheel2_SPID = {.Kp = 10,.Ki = 0.2,.Kd = 1,.limit = 1000};
 
 //机器人状态标志位
 Robot_Status_t Robot_Status;
@@ -79,6 +79,8 @@ void StartTask(void) {
     HAL_UART_Receive_DMA(&huart1, usart1_dma_buff, 30);
 
 	HAL_TIM_Base_Start(&htim2);
+    
+    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
                 
     xTaskCreate((TaskFunction_t)PC_task,
                 (const char *)"PC_task",

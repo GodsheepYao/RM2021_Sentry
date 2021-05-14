@@ -68,6 +68,9 @@ void Error_Handler(void);
 #define Optical_Fiber2_GPIO_Port GPIOA
 #define Pill_Count1_Pin GPIO_PIN_5
 #define Pill_Count1_GPIO_Port GPIOC
+#define Pill_Count1_EXTI_IRQn EXTI9_5_IRQn
+#define Supply_Pin GPIO_PIN_8
+#define Supply_GPIO_Port GPIOC
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

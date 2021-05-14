@@ -16,18 +16,10 @@ void PTZ_Runtime_task(void *pvParameters) {
     uint16_t blocked_count1 = 0;
     uint8_t blocked_flag1 = 0;
     int16_t PluckSpeed1 = 0;
-    uint16_t pill_count_time = 0;
     
     for (;;) {    
         /* P轴限幅 */
         limit(PTZAngle_Ref.Pitch, PTZ_Pitch_MAX, PTZ_Pitch_MIN);
-        
-        if(HAL_GPIO_ReadPin(Pill_Count2_GPIO_Port, Pill_Count2_Pin) == GPIO_PIN_RESET && pill_count_time < 5) {
-            Pill_Out++;
-            pill_count_time++;
-        }
-        else 
-            pill_count_time = 0;
         
         if(Robot_Status.RS_Fire && UpBoard_Data.Radiofreq_Limit != 0){
             PluckSpeed1 = PluckSpeedExp;
