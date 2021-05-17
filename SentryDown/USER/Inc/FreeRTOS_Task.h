@@ -53,7 +53,9 @@ extern int16_t FrictionwheelSpeedExp;   //!<@brief 拨弹速度期望
 extern Robot_Status_t Robot_Status;     //!<@brief 机器人全局标志位
 extern UpBoard_Data_t UpBoard_Data;     //!<@brief 上下板通信数据
 
-extern int16_t Pill_Out;    //!<@brief 下云台出弹计数
+extern int16_t Pill_Out;        //!<@brief 下云台出弹计数
+
+extern uint8_t blocked_flag1;   //堵转标志位
 
 extern WatchDog_TypeDef Yaw_Dog, Pitch_Dog, Friction1_Dog, Friction2_Dog, Pluck_Dog; //!<@brief 所有下云台电机看门狗
 

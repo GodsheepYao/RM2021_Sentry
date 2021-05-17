@@ -18,9 +18,10 @@ typedef struct {
     int16_t Yaw_AngularVelocity;      //!<@brief Yaw轴角速度
     int16_t Pitch_AngularVelocity;    //!<@brief Pitch轴角速度
     int16_t Location;                 //!<@brief 车体位置(mm, 左零点)
-    int16_t Speed;                    //!<@brief 车体速度(mm/s)
+    int16_t Speed;                    //!<@brief 电机转速(mm/s)
+    uint16_t HP;                      //!<@brief 机器人当前血量  
     Robot_Status_t Status;            //!<@brief 机器人当前状态标志位
-} Robot_Info_t;
+} Robot_Info_t;  
 
 /**
  * PC控制机器人的结构体

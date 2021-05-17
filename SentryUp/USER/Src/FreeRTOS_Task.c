@@ -30,22 +30,22 @@ int16_t PluckSpeedExp = 2000;
 //摩擦轮速度期望
 int16_t FrictionwheelSpeedExp = 7000;
 
-//拨弹盘选择
-uint8_t Pluck_Select = 0;
+//底盘自动模式期望
+int16_t Chasssis_Auto_Speed = 0;
 
 //下供弹计数
 int16_t Pill_SupplyDown = 0, Pill_Out = 0;
 
 //底盘电机速度PID
-PID ChassisMotor_SPID = {.Kp = 10, .Ki = 0.5, .Kd = 1, .limit = 5000}; 
+PID ChassisMotor_SPID = {.Kp = 10, .Ki = 0, .Kd = 1}; 
 
 //Pitch轴角度、速度PID
 PID_Smis GM6020_Pitch_PID = {.Kp = 15, .Ki = 0.1, .Kd = -25, .limit = 5000};
-PID GM6020_Pitch_SPID = {.Kp = 10, .Ki = 0, .Kd = 3};
+PID GM6020_Pitch_SPID = {.Kp = 8, .Ki = 0, .Kd = 3};
 
 //Yaw轴角度、速度PID
 PID_Smis GM6020_Yaw_PID = {.Kp = 15, .Ki = 0.05, .Kd = -35, .limit = 5000};
-PID GM6020_Yaw_SPID = {.Kp = 10, .Ki = 0, .Kd = 5};
+PID GM6020_Yaw_SPID = {.Kp = 8, .Ki = 0, .Kd = 5};
 
 //拨弹电机速度PID
 PID Pluck1_SPID = {.Kp = 13, .Ki = 0.5, .Kd = 1, .limit = 5000};
@@ -62,8 +62,14 @@ float Encoder_Locat;
 float Encoder_offsef;
 float Encoder_Max;
 
-//机器人状态标志位
+//上板机器人状态标志位
 Robot_Status_t Robot_Status;
+
+//下板机器人状态标志位
+Robot_Status_t Down_Status;
+
+//堵转标志位
+uint8_t blocked_flag1 = 0, blocked_flag2 = 0;
 
 //所有电机看门狗
 WatchDog_TypeDef Chassis_Dog, Yaw_Dog, Pitch_Dog, Friction1_Dog, Friction2_Dog, Pluck1_Dog, Pluck2_Dog;
@@ -172,14 +178,14 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
         switch (can_id)
         {
             case 0x101:
-                Pill_Out = (int16_t)*CAN2_buff;
+                memcpy(&Down_Status, CAN2_buff, sizeof(Robot_Status_t));
                 break;
         }
     }
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if(huart->Instance == USART6) {		
+    if(huart->Instance == USART6) {
 		RMQueuePushEndPtr(&Referee_Queue);
 		HAL_UART_Receive_DMA(&huart6, RMQueueGetEndPtr(&Referee_Queue), Queue_Width);
 	}

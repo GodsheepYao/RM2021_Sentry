@@ -3,8 +3,6 @@
 #include "kalman.h"
 #include "Chassis.h"
 
-float pitch_exp = 0;
-
 TaskHandle_t PTZ_Runtime_Handler;
 void PTZ_Runtime_task(void *pvParameters) {
     /* 电机数据发送缓冲区 */
@@ -14,7 +12,6 @@ void PTZ_Runtime_task(void *pvParameters) {
     portTickType xLastWakeTime = xTaskGetTickCount();
     
     uint16_t blocked_count1 = 0;
-    uint8_t blocked_flag1 = 0;
     int16_t PluckSpeed1 = 0;
     
     for (;;) {    
@@ -48,7 +45,7 @@ void PTZ_Runtime_task(void *pvParameters) {
         PID_Control(Pluck1.Speed, PluckSpeed1, &Pluck1_SPID);
         limit(Pluck1_SPID.pid_out, 10000, -10000);
         
-        pitch_exp = QuickCentering(GM6020_Pitch.MchanicalAngle, PTZAngle_Ref.Pitch);
+        float pitch_exp = QuickCentering(GM6020_Pitch.MchanicalAngle, PTZAngle_Ref.Pitch);
         PID_Control_Smis(GM6020_Pitch.MchanicalAngle, pitch_exp, &GM6020_Pitch_PID, GM6020_Pitch.Speed);
         PID_Control(GM6020_Pitch.Speed, GM6020_Pitch_PID.pid_out, &GM6020_Pitch_SPID);
         limit(GM6020_Pitch_SPID.pid_out, 29000, -29000);

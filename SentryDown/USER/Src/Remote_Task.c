@@ -1,6 +1,8 @@
 #include "Remote_Task.h"
 #include "PC_Task.h"
+
 uint8_t usart1_dma_buff[30] = {0};
+uint8_t remote_flag1 = 0;
 
 SemaphoreHandle_t Remote_Semaphore;
 TaskHandle_t Remote_task_Handler;
@@ -57,17 +59,20 @@ void RemoteControlProcess(Remote *rc){
         
         switch(rc->s1){
             case 1:
-                Robot_Status.RS_Fire = STATUS_TURN_ON;
+                if(remote_flag1 == 2) Robot_Status.RS_Fire = STATUS_TURN_ON;
                 break;
             case 3:
                 Robot_Status.RS_Loaded = STATUS_TURN_ON;
                 Robot_Status.RS_Fire = STATUS_TURN_OFF;
+                remote_flag1++;
                 break;
             case 2:
+                remote_flag1 = 0;
                 Robot_Status.RS_Loaded = STATUS_TURN_OFF;
                 Robot_Status.RS_Fire = STATUS_TURN_OFF;
+                remote_flag1++;
                 break;
-    }
+        }
     }
     
     if(rc->s2 != 3) Robot_Status.RS_Auto = STATUS_TURN_OFF;   

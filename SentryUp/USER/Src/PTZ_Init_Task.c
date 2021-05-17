@@ -13,23 +13,23 @@ void PTZ_Init_task(void *pvParameters) {
 
     Ramp_Typedef PTZ_Init = {.RampTime = 70000};
 
-    float PitchRampInit = PTZ_Pitch_median - GM6020_Pitch.MchanicalAngle;
-    float YawRampInit = PTZ_Yaw_median - GM6020_Yaw.MchanicalAngle;
+	int16_t PitchRampInit = QuickCentering(GM6020_Pitch.MchanicalAngle, PTZ_Pitch_median) - GM6020_Pitch.MchanicalAngle;
+	int16_t YawRampInit = QuickCentering(GM6020_Yaw.MchanicalAngle, PTZ_Yaw_median) - GM6020_Yaw.MchanicalAngle;	
 
     portTickType xLastWakeTime = xTaskGetTickCount();
     for (;;)
     {
-        PID_Control_Smis(GM6020_Pitch.MchanicalAngle,
-                                PTZ_Pitch_median - (PitchRampInit * (1.0f - Slope(&PTZ_Init))),
-                                &GM6020_Pitch_PID, GM6020_Pitch.Speed);
-
+		PID_Control_Smis(GM6020_Pitch.MchanicalAngle,
+                         QuickCentering(GM6020_Pitch.MchanicalAngle, PTZ_Pitch_median - PitchRampInit * (1.0f - Slope(&PTZ_Init))), 
+						 &GM6020_Pitch_PID, GM6020_Pitch.Speed);
+        
+		PID_Control_Smis(GM6020_Yaw.MchanicalAngle,
+                         QuickCentering(GM6020_Yaw.MchanicalAngle, PTZ_Yaw_median - YawRampInit * (1.0f - Slope(&PTZ_Init))), 
+                         &GM6020_Yaw_PID, GM6020_Yaw.Speed);
+        
         PID_Control(GM6020_Pitch.Speed, GM6020_Pitch_PID.pid_out, &GM6020_Pitch_SPID);
         limit(GM6020_Pitch_SPID.pid_out, 29000, -29000);
-
-        PID_Control_Smis(GM6020_Yaw.MchanicalAngle,
-                                PTZ_Yaw_median - (YawRampInit * (1.0f - Slope(&PTZ_Init))),
-                                &GM6020_Yaw_PID, GM6020_Yaw.Speed);
-
+        
         PID_Control(GM6020_Yaw.Speed, GM6020_Yaw_PID.pid_out, &GM6020_Yaw_SPID);
         limit(GM6020_Yaw_SPID.pid_out, 29000, -29000);
 

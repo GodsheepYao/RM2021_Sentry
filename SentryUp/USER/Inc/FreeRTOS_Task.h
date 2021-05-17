@@ -15,7 +15,7 @@
 #define STATUS_TURN_ON 1      //!<@brief 状态开启
 #define STATUS_TURN_OFF 0     //!<@brief 状态关闭
 
-#define Queue_Deep 7	
+#define Queue_Deep 10	
 #define Queue_Width 32	
 
 typedef struct {
@@ -51,7 +51,7 @@ extern int16_t FrictionwheelSpeedExp;       //!<@brief 摩擦轮速度期望
 
 extern int16_t PluckSpeedExp;               //!<@brief 拨弹速度期望
 
-extern uint8_t Pluck_Select;                //!<@brief 拨弹盘选择
+extern int16_t Chasssis_Auto_Speed;      //!<@brief 底盘自动模式期望
 
 extern int16_t Pill_SupplyDown, Pill_Out;   //!<@brief 下供弹计数
 
@@ -76,6 +76,9 @@ extern float Encoder_offsef;
 extern float Encoder_Max;
 
 extern Robot_Status_t Robot_Status; //!<@brief 机器人全局标志位
+extern Robot_Status_t Down_Status;  //!<@brief 下板机器人标志位
+
+extern uint8_t blocked_flag1, blocked_flag2;
 
 extern WatchDog_TypeDef Chassis_Dog, Yaw_Dog, Pitch_Dog, 
        Friction1_Dog, Friction2_Dog, Pluck1_Dog, Pluck2_Dog; //!<@brief 所有下云台电机看门狗

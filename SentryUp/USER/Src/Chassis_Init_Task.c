@@ -10,7 +10,7 @@ int16_t Encoder_post = 13;
 void Chassis_Init_task(void *pvParameters) {
     int16_t Send_buff[4] = {0, 0, 0, 0};
     float SpeedExp = 2500;
-    uint8_t Direct = 3;
+    uint8_t Direct = 0;
     uint16_t time_count = 0;
     
     PID_Smis Chassis_PID = {.Kp = 12, .Ki = 0, .Kd = 0, .limit = 1000};

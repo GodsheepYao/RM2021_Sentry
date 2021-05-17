@@ -1,9 +1,8 @@
 #include "Chassis_Fire_Task.h"
 #include "FreeRTOS_Task.h"
+#include "PC_Task.h"
 
 TaskHandle_t Chassis_Fire_Handler;
-uint8_t distance_flag = 0;
- 
 void Chassis_Fire_task(void *pvParameters) {
     int16_t Send_buff[4] = { 0 };
     int16_t FrictionwheelSpeed = 0;
@@ -14,7 +13,8 @@ void Chassis_Fire_task(void *pvParameters) {
     portTickType xLastWakeTime = xTaskGetTickCount();
     
     for( ;; ) {
-        ChassisSpeed = ChassisSpeedExp;
+        ChassisSpeed = Robot_Status.RS_Auto ? Chasssis_Auto_Speed : ChassisSpeedExp;
+        
         if(Encoder_Max - (Encoder_Locat - Encoder_offsef) < 20) {
             if(ChassisSpeed < 0)
                 ChassisSpeed *= (Encoder_Max - (Encoder_Locat - Encoder_offsef)) / 20;
@@ -24,11 +24,6 @@ void Chassis_Fire_task(void *pvParameters) {
             if(ChassisSpeed > 0)
                 ChassisSpeed *= (Encoder_Locat - Encoder_offsef) / 20;
         }
-        
-//        if(Robot_Status.RS_Auto) {
-//            PID_Control(Encoder_Locat, USB_RE)
-//            limit();
-//        }
         
         if(Robot_Status.RS_Loaded && Frictionwheel1.temp < 80 && Frictionwheel2.temp < 80)
             FrictionwheelSpeed = FrictionwheelSpeedExp;
@@ -43,9 +38,9 @@ void Chassis_Fire_task(void *pvParameters) {
         PID_Control(Frictionwheel2.Speed, FrictionwheelSpeed, &Frictionwheel2_SPID);
         limit(Frictionwheel2_SPID.pid_out, 29000, -29000);
        
-        float bili = refree_power_limit_bili();
+        int16_t bili = refree_power_limit_bili() * 100;
 #if Chassis_Active        
-        Send_buff[0] = ChassisMotor_SPID.pid_out * bili;
+        Send_buff[0] = ChassisMotor_SPID.pid_out * bili / 100;
 #endif
         Send_buff[2] = Frictionwheel1_SPID.pid_out;
         Send_buff[3] = Frictionwheel2_SPID.pid_out;

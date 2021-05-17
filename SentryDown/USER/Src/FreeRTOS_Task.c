@@ -17,7 +17,7 @@ M2006_TypeDef Pluck1;
 RM3508_TypeDef Frictionwheel1, Frictionwheel2;
 
 //拨弹速度期望
-int16_t PluckSpeedExp = -5000;
+int16_t PluckSpeedExp = -4000;
 
 //摩擦轮速度期望
 int16_t FrictionwheelSpeedExp = -7000;
@@ -48,6 +48,11 @@ UpBoard_Data_t UpBoard_Data;
 
 //下云台出弹计数
 int16_t Pill_Out = 0;
+
+
+
+//堵转标志位
+uint8_t blocked_flag1 = 0;
 
 //所有电机看门狗
 WatchDog_TypeDef Yaw_Dog, Pitch_Dog, Friction1_Dog, Friction2_Dog, Pluck_Dog;

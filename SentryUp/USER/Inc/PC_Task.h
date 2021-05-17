@@ -18,7 +18,8 @@ typedef struct {
     int16_t Yaw_AngularVelocity;      //!<@brief Yaw轴角速度
     int16_t Pitch_AngularVelocity;    //!<@brief Pitch轴角速度
     int16_t Location;                 //!<@brief 车体位置(mm, 左零点)
-    int16_t Speed;                    //!<@brief 车体速度(mm/s)
+    int16_t Speed;                    //!<@brief 电机转速(mm/s)
+    uint16_t HP;                      //!<@brief 机器人当前血量  
     Robot_Status_t Status;            //!<@brief 机器人当前状态标志位
 } Robot_Info_t;                  
 
@@ -32,6 +33,7 @@ typedef struct {
     Robot_Status_t Status;       //!<@brief 机器人控制标志位
     int16_t Speed;               //!<@brief 车体速度(mm/s)
 } Control_Info_t;
+
 
 extern TaskHandle_t PC_task_Handler;
 void PC_task(void *pvParameters);
