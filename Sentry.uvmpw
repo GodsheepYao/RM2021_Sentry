@@ -9,12 +9,12 @@
 
   <project>
     <PathAndName>.\SentryUp\MDK-ARM\SentryUp.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
     <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
     <PathAndName>.\SentryDown\MDK-ARM\SentryDown.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
     <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 

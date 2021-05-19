@@ -25,7 +25,7 @@ PTZAngle_Ref_t PTZAngle_Ref = {.Pitch = PTZ_Pitch_median, .Yaw = PTZ_Yaw_median}
 int16_t ChassisSpeedExp = 0;
 
 //拨弹速度期望
-int16_t PluckSpeedExp = 2000;
+int16_t PluckSpeedExp = 4000;
 
 //摩擦轮速度期望
 int16_t FrictionwheelSpeedExp = 7000;

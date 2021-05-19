@@ -36,7 +36,7 @@ void PC_task(void *pvParameters){
         }
         
         while(unpack_refree_system_data(&Referee_Queue));
-        UpBoard_Data.Radiofreq_Limit = (int16_t)(shooter_bili1 * 100);
+        UpBoard_Data.Radiofreq_Limit = (int16_t)(shooter_bili2 * 100);
         CAN_Send_StdDataFrame(&hcan2, 0x100, (uint8_t*)&UpBoard_Data);
         last_Encoder_Locat = Encoder_Locat;
         vTaskDelayUntil(&xLastWakeTime, 10);

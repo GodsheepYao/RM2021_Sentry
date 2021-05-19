@@ -8,7 +8,7 @@ void Chassis_Fire_task(void *pvParameters) {
     int16_t FrictionwheelSpeed = 0;
     int16_t  ChassisSpeed = 0;
     
-    PID Chassis_PID = {.Kp = 12, .Ki = 0, .Kd = 0, .limit = 1000};
+//    PID Chassis_PID = {.Kp = 12, .Ki = 0, .Kd = 0, .limit = 1000};
 
     portTickType xLastWakeTime = xTaskGetTickCount();
     

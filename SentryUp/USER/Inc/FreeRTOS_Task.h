@@ -16,7 +16,7 @@
 #define STATUS_TURN_OFF 0     //!<@brief 状态关闭
 
 #define Queue_Deep 10	
-#define Queue_Width 32	
+#define Queue_Width USART6_BUFLEN	
 
 typedef struct {
     uint32_t RS_Ready     :1; //!<@brief 初始化完成

@@ -80,7 +80,7 @@ void PTZ_Runtime_task(void *pvParameters)
         PID_Control(Pluck1.Speed, PluckSpeed1, &Pluck1_SPID);
         limit(Pluck1_SPID.pid_out, 10000, -10000);
 
-        PluckSpeed2 *= shooter_bili2;
+        PluckSpeed2 *= shooter_bili1;
         PID_Control(Pluck2.Speed, PluckSpeed2, &Pluck2_SPID);
         limit(Pluck2_SPID.pid_out, 10000, -10000);
         
