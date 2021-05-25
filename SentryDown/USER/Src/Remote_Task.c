@@ -75,7 +75,7 @@ void RemoteControlProcess(Remote *rc){
         }
     }
     
-    if(rc->s2 != 3) Robot_Status.RS_Auto = STATUS_TURN_OFF;   
+    if(rc->s2 != 3 && !UpBoard_Data.Status.RS_Auto) Robot_Status.RS_Auto = STATUS_TURN_OFF;   
 
 }
 

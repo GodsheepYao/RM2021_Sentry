@@ -91,8 +91,8 @@ void RemoteControlProcess(Remote *rc) {
     ChassisSpeedExp = (rc->ch0 - REMOTE_CONTROLLER_STICK_OFFSET) * Sensitivity_Chassis;
 
     
-    if(rc->s2 != 3 && ext_game_state.game_progress != 4) Robot_Status.RS_Auto = STATUS_TURN_OFF;
-    if(ext_game_state.game_progress == 4) Robot_Status.RS_Auto = STATUS_TURN_ON;
+    if(rc->s2 == 3) Robot_Status.RS_Auto = STATUS_TURN_ON;
+    else Robot_Status.RS_Auto = STATUS_TURN_OFF;
 
 }
 
